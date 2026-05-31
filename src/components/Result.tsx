@@ -156,8 +156,16 @@ function WatchAct({
       </p>
 
       {/* watch — AI illustration if present, else generated SVG */}
-      <div className="relative mt-3 watch-in">
-        <div className="shimmer overflow-hidden rounded-[28px]">
+      <div className="relative mt-3 flex items-center justify-center watch-in">
+        <div
+          aria-hidden
+          className="absolute h-[232px] w-[232px] rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(90,72,40,0.12), transparent 70%)" }}
+        />
+        <div
+          className="shimmer relative overflow-hidden rounded-[28px]"
+          style={{ filter: "drop-shadow(0 12px 24px rgba(60,45,15,0.18))" }}
+        >
           <WatchImage watch={watch} size={244} />
         </div>
       </div>

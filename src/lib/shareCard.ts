@@ -37,11 +37,12 @@ function wrap(text: string, maxChars: number, maxLines: number): string[] {
 
 const SERIF = "Georgia, 'Times New Roman', serif";
 const SANS = "'Helvetica Neue', Arial, sans-serif";
-const GOLD = "#c9a86a";
-const GOLD_HI = "#e6c98f";
-const HI = "#f5f3ee";
-const MID = "#b5b2ab";
-const LOW = "#7d7a73";
+// Light ivory editorial palette (matches the site)
+const GOLD = "#9a7c34";
+const GOLD_HI = "#b08832";
+const HI = "#221d15";
+const MID = "#574e40";
+const LOW = "#978c79";
 
 /** Build the full 9:16 share-card SVG as a string, embedding the watch markup. */
 export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): string {
@@ -96,19 +97,26 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): st
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
     <linearGradient id="cardbg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#101015"/>
-      <stop offset="0.5" stop-color="#0a0a0b"/>
-      <stop offset="1" stop-color="#08080a"/>
+      <stop offset="0" stop-color="#f6f1e7"/>
+      <stop offset="0.5" stop-color="#f1ebe0"/>
+      <stop offset="1" stop-color="#ece3d3"/>
     </linearGradient>
-    <radialGradient id="cardglow" cx="0.5" cy="0.32" r="0.5">
-      <stop offset="0" stop-color="${GOLD}" stop-opacity="0.16"/>
+    <radialGradient id="cardglow" cx="0.5" cy="0.30" r="0.5">
+      <stop offset="0" stop-color="${GOLD}" stop-opacity="0.08"/>
       <stop offset="1" stop-color="${GOLD}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="platter" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5a4828" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#5a4828" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <rect width="${W}" height="${H}" fill="url(#cardbg)"/>
   <rect width="${W}" height="${H}" fill="url(#cardglow)"/>
-  <rect x="34" y="34" width="${W - 68}" height="${H - 68}" rx="28" fill="none" stroke="${GOLD}" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="34" y="34" width="${W - 68}" height="${H - 68}" rx="28" fill="none" stroke="${GOLD}" stroke-opacity="0.34" stroke-width="1.5"/>
+
+  <!-- soft platter so light/silver watches lift off the ivory -->
+  <ellipse cx="${WATCH_BOX.x + WATCH_BOX.w / 2}" cy="${WATCH_BOX.y + WATCH_BOX.h / 2}" rx="250" ry="250" fill="url(#platter)"/>
 
   <!-- wordmark -->
   <text x="${W / 2}" y="168" text-anchor="middle" font-family="${SANS}" font-size="30" letter-spacing="10" fill="${GOLD}">WATCH ENERGY</text>

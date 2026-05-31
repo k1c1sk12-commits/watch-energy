@@ -19,7 +19,7 @@ export function CaseSwatch({ metal }: { metal: Metal }) {
           <stop offset="1" stopColor={c} />
         </linearGradient>
       </defs>
-      <rect x="2" y="2" width="40" height="40" rx="12" fill={`url(#cs${uid})`} stroke="rgba(255,255,255,0.12)" />
+      <rect x="2" y="2" width="40" height="40" rx="12" fill={`url(#cs${uid})`} stroke="rgba(0,0,0,0.16)" />
     </svg>
   );
 }
@@ -36,7 +36,7 @@ export function DialSwatch({ hex }: { hex: string }) {
           <stop offset="1" stopColor={darken(hex, 0.3)} />
         </radialGradient>
       </defs>
-      <circle cx="22" cy="22" r="18" fill={`url(#ds${uid})`} stroke="rgba(255,255,255,0.12)" />
+      <circle cx="22" cy="22" r="18" fill={`url(#ds${uid})`} stroke="rgba(0,0,0,0.16)" />
     </svg>
   );
 }
@@ -61,7 +61,7 @@ export function StrapSwatch({ strap }: { strap: StrapType }) {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 44 44" aria-hidden>
       {/* central case stub */}
-      <rect x="15" y="17" width="14" height="10" rx="2" fill="#2a2a2e" stroke="rgba(255,255,255,0.15)" />
+      <rect x="15" y="17" width="14" height="10" rx="2" fill="#2a2a2e" stroke="rgba(0,0,0,0.18)" />
       {[6, 31].map((y, i) => (
         <g key={i}>
           {isBracelet ? (
@@ -82,13 +82,13 @@ export function StrapSwatch({ strap }: { strap: StrapType }) {
             <path
               d={i === 0 ? `M16 ${y + 7} L28 ${y + 7} L26 ${y} L18 ${y} Z` : `M18 ${y} L26 ${y} L28 ${y + 7} L16 ${y + 7} Z`}
               fill={col}
-              stroke="rgba(255,255,255,0.1)"
+              stroke="rgba(0,0,0,0.14)"
               strokeWidth="0.5"
             />
           )}
           {isTextile &&
             [0, 1, 2, 3].map((k) => (
-              <line key={k} x1={17 + k * 3} y1={y} x2={17 + k * 3} y2={y + 7} stroke="rgba(255,255,255,0.18)" strokeWidth="0.5" />
+              <line key={k} x1={17 + k * 3} y1={y} x2={17 + k * 3} y2={y + 7} stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
             ))}
         </g>
       ))}

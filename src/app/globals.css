@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  /* Background layers (dark luxe) */
-  --bg-base: #0a0a0b;
-  --bg-raised: #121214;
-  --bg-overlay: #1a1a1d;
-  --bg-hover: #232327;
+  /* Background layers (light ivory editorial) */
+  --bg-base: #f2ede3;
+  --bg-raised: #fbf7ef;
+  --bg-overlay: #ffffff;
+  --bg-hover: #ece5d7;
 
-  /* Gold accent (warm, not yellow) */
-  --gold: #c9a86a;
-  --gold-bright: #e6c98f;
-  --gold-deep: #9a7e48;
-  --gold-glow: rgba(201, 168, 106, 0.28);
+  /* Gold accent (deeper, for contrast on a light ground) */
+  --gold: #9a7c34;
+  --gold-bright: #b89346;
+  --gold-deep: #6f5826;
+  --gold-glow: rgba(154, 124, 52, 0.22);
 
-  /* Text tiers */
-  --text-hi: #f5f3ee;
-  --text-mid: #b5b2ab;
-  --text-low: #6e6c68;
+  /* Text tiers (warm near-black -> warm grey) */
+  --text-hi: #221d15;
+  --text-mid: #574e40;
+  --text-low: #978c79;
 
   /* Functional */
-  --match: #c9a86a;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-gold: rgba(201, 168, 106, 0.45);
+  --match: #9a7c34;
+  --border: rgba(40, 30, 10, 0.12);
+  --border-gold: rgba(154, 124, 52, 0.5);
 }
 
 @theme inline {
@@ -50,12 +50,12 @@
 
 html {
   background: var(--bg-base);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(201, 168, 106, 0.06), transparent 60%),
+    radial-gradient(120% 80% at 50% -10%, rgba(154, 124, 52, 0.07), transparent 60%),
     var(--bg-base);
   color: var(--text-hi);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -203,7 +203,7 @@ input[type="date"] {
   appearance: none;
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7) sepia(1) saturate(2) hue-rotate(5deg);
+  filter: sepia(1) saturate(2.2) hue-rotate(5deg) brightness(0.7);
   cursor: pointer;
 }
 
