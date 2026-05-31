@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import { getReading, parseDOB } from "@/lib/engine";
 import { WATCHES } from "@/lib/watches";
 import type { Reading as ReadingResult } from "@/lib/types";
@@ -33,6 +34,7 @@ export default function Experience() {
       name: d.name,
     });
     setReading(r);
+    track("reveal_watch", { watch_id: r.watch.id, brand: r.watch.brand, nature: d.nature });
     setPhase("reading");
   }, []);
 
@@ -57,7 +59,15 @@ export default function Experience() {
   return (
     <main className="relative min-h-[100svh] overflow-hidden">
       <div key={phase} className="rise-in">
-        {phase === "landing" && <Landing teaser={TEASER} onBegin={() => setPhase("input")} />}
+        {phase === "landing" && (
+          <Landing
+            teaser={TEASER}
+            onBegin={() => {
+              track("begin");
+              setPhase("input");
+            }}
+          />
+        )}
         {phase === "input" && <InputScreen initial={draft} onReveal={reveal} />}
         {phase === "reading" && <ReadingScreen durationMs={READING_MS} />}
         {phase === "result" && reading && (

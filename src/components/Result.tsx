@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import { ENERGY_META, VIBE_META } from "@/lib/engine";
 import { captionFor, shareReading, type ShareOutcome } from "@/lib/shareCard";
 import type { Reading } from "@/lib/types";
@@ -118,6 +119,7 @@ function WatchAct({
     setShareState("working");
     const outcome = await shareReading(reading, captureRef.current);
     setShareState(outcome);
+    track("save_card", { outcome, watch_id: watch.id });
     if (outcome !== "error") setTimeout(() => setShareState("idle"), 2600);
   }
 
@@ -125,6 +127,7 @@ function WatchAct({
     try {
       await navigator.clipboard.writeText(captionFor(reading));
       setCopied(true);
+      track("copy_caption", { watch_id: watch.id });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       /* ignore */
@@ -251,6 +254,7 @@ function WatchAct({
           href={IG_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => track("follow_ig", { watch_id: watch.id })}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-gold px-6 py-3.5 text-sm font-semibold text-[#1a1305] transition-all duration-300 hover:bg-gold-bright active:scale-[0.98]"
         >
           Follow @gptwatchcollector
