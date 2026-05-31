@@ -74,7 +74,7 @@ export function GET() {
             justifyContent: "center",
           }}
         >
-          What watch is your energy today?
+          Meet your destiny watch.
         </div>
         <div
           style={{
@@ -88,7 +88,7 @@ export function GET() {
             justifyContent: "center",
           }}
         >
-          Birth date + today&apos;s mood, channelled into one luxury watch.
+          Your birth and your nature, channelled into one luxury watch.
         </div>
         <div
           style={{

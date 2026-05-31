@@ -39,7 +39,7 @@ export default function InputScreen({
         className="mb-8 font-display text-[1.7rem] font-light leading-tight text-hi rise-in"
         style={{ animationDelay: "40ms" }}
       >
-        Read your energy.
+        Find your destiny watch.
       </h2>
 
       {/* ---- Birth date ---- */}
@@ -81,9 +81,10 @@ export default function InputScreen({
 
       {/* ---- Vibe ---- */}
       <div className="mt-8 rise-in" style={{ animationDelay: "140ms" }}>
-        <p className="mb-3 block text-sm font-medium text-mid" id="vibe-label">
-          Pick today&apos;s energy
+        <p className="mb-1 block text-sm font-medium text-mid" id="vibe-label">
+          What is your inner nature?
         </p>
+        <p className="mb-3 text-xs text-low">The one that&apos;s true no matter the day.</p>
         <div role="radiogroup" aria-labelledby="vibe-label" className="grid grid-cols-2 gap-2.5">
           {VIBES.map((v, i) => {
             const meta = VIBE_META[v];
@@ -145,7 +146,7 @@ export default function InputScreen({
             ].join(" ")}
             key={justReady ? "on" : "off"}
           >
-            Reveal my watch
+            Reveal my destiny watch
           </button>
         </div>
       </div>

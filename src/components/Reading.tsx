@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 const STEPS = [
-  "Reading your birth frequency…",
-  "Aligning with today's energy…",
-  "Matching the movement…",
+  "Reading your nature…",
+  "Tracing the watch written for you…",
+  "Your destiny watch is near…",
 ];
 
 export default function Reading({ durationMs }: { durationMs: number }) {

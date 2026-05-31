@@ -57,13 +57,13 @@ function RecipeAct({ reading }: { reading: Reading }) {
   ];
   return (
     <section className="mx-auto flex min-h-[100svh] max-w-[400px] flex-col justify-center px-6 text-center">
-      <p className="eyebrow rise-in">Your energy recipe</p>
+      <p className="eyebrow rise-in">Your destiny recipe</p>
       <h2
         className="mt-2 font-display text-[1.6rem] font-light leading-snug text-hi rise-in"
         style={{ animationDelay: "60ms" }}
       >
         <span className="italic text-gold-bright">{energy.name}</span> energy ·{" "}
-        {VIBE_META[reading.vibe].label} day
+        {VIBE_META[reading.vibe].label}
       </h2>
       <p className="mt-2 text-sm text-mid rise-in" style={{ animationDelay: "120ms" }}>
         It calls for a watch built like this.
@@ -144,7 +144,7 @@ function WatchAct({
 
       {/* match badge */}
       <p className="eyebrow mt-5 rise-in" style={{ animationDelay: "40ms" }}>
-        Your watch
+        Your destiny watch
       </p>
       <div className="mt-1 flex items-end justify-center gap-2 rise-in" style={{ animationDelay: "70ms" }}>
         <span className="tnum font-display text-[3.2rem] font-light leading-none text-gold-bright">{pct}%</span>
@@ -269,15 +269,15 @@ function WatchAct({
         </button>
       </div>
 
-      {/* retry + re-roll teaser */}
-      <button onClick={onRetry} className="mt-6 text-sm text-low underline-offset-4 hover:text-mid hover:underline">
-        Try a different energy
-      </button>
-      <p className="mt-5 text-xs leading-relaxed text-low/80">
-        Your energy shifts. Your watch shifts.
+      {/* enduring line + re-entry for someone else */}
+      <p className="mt-7 text-xs leading-relaxed text-low/80">
+        Not for today — for who you are.
         <br />
-        Come back tomorrow for today&apos;s match.
+        One nature. One watch. Yours.
       </p>
+      <button onClick={onRetry} className="mt-5 text-sm text-low underline-offset-4 hover:text-mid hover:underline">
+        Reveal another person&apos;s →
+      </button>
 
       {/* hidden static render used to rasterise the share card */}
       <div className="pointer-events-none absolute -left-[9999px] top-0" aria-hidden>

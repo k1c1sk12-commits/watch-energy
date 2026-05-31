@@ -80,12 +80,14 @@ export const VIBE_TARGET: Record<Vibe, Energy> = {
   GROUNDED: "TERRA",
 };
 
+// The second input is an enduring NATURE (who you are), not a passing mood.
+// Each maps 1:1 to one of the five energies — see VIBE_TARGET.
 export const VIBE_META: Record<Vibe, { label: string; hint: string }> = {
-  CALM: { label: "Calm", hint: "settled & reflective" },
-  BOLD: { label: "Bold", hint: "expressive & seen" },
-  FOCUSED: { label: "Focused", hint: "sharp & precise" },
-  MAGNETIC: { label: "Magnetic", hint: "charismatic & rising" },
-  GROUNDED: { label: "Grounded", hint: "stable & assured" },
+  CALM: { label: "The Deep", hint: "calm surface, vast underneath" }, // Tide
+  BOLD: { label: "The Flame", hint: "passion, presence, felt at once" }, // Ember
+  FOCUSED: { label: "The Clear", hint: "sharp, lucid, you see what others miss" }, // Lumen
+  MAGNETIC: { label: "The Striver", hint: "always growing, reaching for next" }, // Verdant
+  GROUNDED: { label: "The Anchor", hint: "steady, grounded, unshakable" }, // Terra
 };
 
 // ---------------------------------------------------------------------------
@@ -236,13 +238,6 @@ const CLOSE_NOUN: Record<Vibe, string[]> = {
   MAGNETIC: ["a natural pull", "magnetic ease", "rising charisma"],
   GROUNDED: ["a steady centre", "quiet assurance", "rooted calm"],
 };
-const VIBE_ADJ: Record<Vibe, string> = {
-  CALM: "calm",
-  BOLD: "bold",
-  FOCUSED: "focused",
-  MAGNETIC: "magnetic",
-  GROUNDED: "grounded",
-};
 const MATERIAL_PHRASE: Record<string, string> = {
   "stainless steel": "cool steel case",
   oystersteel: "cool steel case",
@@ -284,7 +279,7 @@ function buildReason(w: Watch, base: Energy, vibe: Vibe, seed: string): string {
     s,
     "dn",
   )}.`;
-  const s3 = `For a ${VIBE_ADJ[vibe]} day, this piece ${pick(CLOSE_VERB, s, "cl")} ${pick(
+  const s3 = `For ${VIBE_META[vibe].label}, this piece ${pick(CLOSE_VERB, s, "cl")} ${pick(
     CLOSE_NOUN[vibe],
     s,
     "cn",

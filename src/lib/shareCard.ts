@@ -105,7 +105,7 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
   <line x1="${W / 2 - 70}" y1="196" x2="${W / 2 + 70}" y2="196" stroke="${GOLD}" stroke-opacity="0.5" stroke-width="1.5"/>
 
   <!-- recipe (the hook) -->
-  <text x="${W / 2}" y="258" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="6" fill="${GOLD}">YOUR ENERGY RECIPE</text>
+  <text x="${W / 2}" y="258" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="6" fill="${GOLD}">YOUR DESTINY RECIPE</text>
   ${recipeSvg}
 
   <!-- watch -->
@@ -133,7 +133,7 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
 
   <!-- handle -->
   <text x="${W / 2}" y="1800" text-anchor="middle" font-family="${SERIF}" font-size="42" fill="${GOLD_HI}">${HANDLE}</text>
-  <text x="${W / 2}" y="1844" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="4" fill="${LOW}">FIND YOUR WATCH ENERGY</text>
+  <text x="${W / 2}" y="1844" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="4" fill="${LOW}">MEET YOUR DESTINY WATCH</text>
 </svg>`;
 }
 
@@ -164,7 +164,7 @@ async function svgToPngBlob(svg: string): Promise<Blob> {
 export type ShareOutcome = "shared" | "downloaded" | "error";
 
 export function captionFor(reading: Reading): string {
-  return `My watch energy today: ${reading.watch.brand} ${reading.watch.model} — ${reading.matchPercent}% match, top ${reading.rarity}%. Find yours 👉 ${HANDLE}`;
+  return `My destiny watch: ${reading.watch.brand} ${reading.watch.model} — ${reading.matchPercent}% match, top ${reading.rarity}%. Meet yours 👉 ${HANDLE}`;
 }
 
 export async function shareReading(reading: Reading, watchSvgEl: SVGSVGElement): Promise<ShareOutcome> {

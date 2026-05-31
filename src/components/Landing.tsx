@@ -24,17 +24,17 @@ export default function Landing({ teaser, onBegin }: { teaser: Watch; onBegin: (
           className="font-display text-[2rem] font-light leading-[1.12] text-hi rise-in sm:text-[2.4rem]"
           style={{ animationDelay: "60ms" }}
         >
-          Your day has a frequency.
+          Every collector has one
           <br />
-          <span className="italic text-gold-bright">Find the watch</span> that matches it.
+          <span className="italic text-gold-bright">destined watch.</span> Meet yours.
         </h1>
 
         <p
           className="mt-5 text-[0.95rem] leading-relaxed text-mid rise-in"
           style={{ animationDelay: "140ms" }}
         >
-          Your birth date plus today&apos;s mood, channelled into one haute-horlogerie pick — case,
-          dial, and the energy it carries.
+          Your birth and your nature decide a single watch written for you — case, dial, strap, and
+          the energy it carries. Not a mood. Not a trend. Your destiny watch.
         </p>
 
         <button
