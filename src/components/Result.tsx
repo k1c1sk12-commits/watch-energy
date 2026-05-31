@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ENERGY_META } from "@/lib/engine";
+import { ENERGY_META, VIBE_META } from "@/lib/engine";
 import { captionFor, shareReading, type ShareOutcome } from "@/lib/shareCard";
 import type { Reading } from "@/lib/types";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { CaseSwatch, DialSwatch, StrapSwatch } from "./ConfigSwatch";
 import WatchVisual from "./WatchVisual";
 
 const IG_URL = "https://www.instagram.com/gptwatchcollector/";
@@ -24,18 +25,91 @@ function useCountUp(target: number, durationMs: number, animate: boolean): numbe
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [target, durationMs, animate]);
-  // When motion is reduced, skip the animation and show the final value.
   return animate ? v : target;
 }
 
 export default function Result({ reading, onRetry }: { reading: Reading; onRetry: () => void }) {
   const reduced = useReducedMotion();
+  const [act, setAct] = useState<"recipe" | "watch">("recipe");
+
+  // Act 1 (recipe) auto-advances to Act 2 (watch).
+  useEffect(() => {
+    const t = setTimeout(() => setAct("watch"), reduced ? 650 : 2700);
+    return () => clearTimeout(t);
+  }, [reduced]);
+
+  if (act === "recipe") {
+    return <RecipeAct reading={reading} />;
+  }
+  return <WatchAct reading={reading} onRetry={onRetry} reduced={reduced} />;
+}
+
+// ---------------------------------------------------------------------------
+// Act 1 — the energy recipe builds in, case -> dial -> strap
+// ---------------------------------------------------------------------------
+function RecipeAct({ reading }: { reading: Reading }) {
+  const { recipe } = reading;
+  const energy = ENERGY_META[reading.baseEnergy];
+  const rows = [
+    { key: "Case", value: recipe.caseText, el: <CaseSwatch metal={reading.watch.metal} /> },
+    { key: "Dial", value: recipe.dialText, el: <DialSwatch hex={reading.watch.dialHex} /> },
+    { key: "Strap", value: recipe.strapText, el: <StrapSwatch strap={reading.watch.strapType} /> },
+  ];
+  return (
+    <section className="mx-auto flex min-h-[100svh] max-w-[400px] flex-col justify-center px-6 text-center">
+      <p className="eyebrow rise-in">Your energy recipe</p>
+      <h2
+        className="mt-2 font-display text-[1.6rem] font-light leading-snug text-hi rise-in"
+        style={{ animationDelay: "60ms" }}
+      >
+        <span className="italic text-gold-bright">{energy.name}</span> energy ·{" "}
+        {VIBE_META[reading.vibe].label} day
+      </h2>
+      <p className="mt-2 text-sm text-mid rise-in" style={{ animationDelay: "120ms" }}>
+        It calls for a watch built like this.
+      </p>
+
+      <div className="mt-8 flex flex-col gap-3">
+        {rows.map((r, i) => (
+          <div
+            key={r.key}
+            className="flex items-center gap-4 rounded-[var(--radius-md)] border border-border bg-raised px-4 py-3 text-left rise-in"
+            style={{ animationDelay: `${260 + i * 240}ms` }}
+          >
+            <span className="shrink-0">{r.el}</span>
+            <span className="flex flex-col">
+              <span className="text-[0.62rem] uppercase tracking-[0.2em] text-low">{r.key}</span>
+              <span className="text-[1.02rem] text-hi">{r.value}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-7 text-xs tracking-wide text-low rise-in" style={{ animationDelay: "1000ms" }}>
+        Finding the watch that wears it…
+      </p>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Act 2 — the watch is revealed
+// ---------------------------------------------------------------------------
+function WatchAct({
+  reading,
+  onRetry,
+  reduced,
+}: {
+  reading: Reading;
+  onRetry: () => void;
+  reduced: boolean;
+}) {
   const pct = useCountUp(reading.matchPercent, 1100, !reduced);
   const captureRef = useRef<SVGSVGElement>(null);
   const [shareState, setShareState] = useState<"idle" | "working" | ShareOutcome>("idle");
   const [copied, setCopied] = useState(false);
   const [why, setWhy] = useState(false);
-  const { watch } = reading;
+  const { watch, recipe } = reading;
   const energy = ENERGY_META[reading.baseEnergy];
 
   async function handleShare() {
@@ -57,26 +131,38 @@ export default function Result({ reading, onRetry }: { reading: Reading; onRetry
   }
 
   return (
-    <section className="mx-auto flex min-h-[100svh] max-w-[440px] flex-col items-center px-5 pb-16 pt-12 text-center">
+    <section className="mx-auto flex min-h-[100svh] max-w-[440px] flex-col items-center px-5 pb-16 pt-10 text-center">
+      {/* banked recipe chip-row */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rise-in">
+        {[recipe.caseText, recipe.dialText, recipe.strapText].map((t, i) => (
+          <span key={t} className="text-xs text-mid">
+            {i > 0 && <span className="mr-2 text-low">·</span>}
+            {t}
+          </span>
+        ))}
+      </div>
+
       {/* match badge */}
-      <p className="eyebrow rise-in">Your watch energy</p>
-      <div className="mt-2 flex items-end justify-center gap-2 rise-in" style={{ animationDelay: "40ms" }}>
-        <span className="tnum font-display text-[3.4rem] font-light leading-none text-gold-bright">{pct}%</span>
+      <p className="eyebrow mt-5 rise-in" style={{ animationDelay: "40ms" }}>
+        Your watch
+      </p>
+      <div className="mt-1 flex items-end justify-center gap-2 rise-in" style={{ animationDelay: "70ms" }}>
+        <span className="tnum font-display text-[3.2rem] font-light leading-none text-gold-bright">{pct}%</span>
         <span className="mb-2 text-sm text-mid">match</span>
       </div>
-      <p className="mt-1 text-xs tracking-[0.18em] text-low rise-in" style={{ animationDelay: "70ms" }}>
+      <p className="mt-1 text-xs tracking-[0.18em] text-low rise-in" style={{ animationDelay: "90ms" }}>
         TOP {reading.rarity}% RARITY
       </p>
 
       {/* watch */}
-      <div className="relative mt-4 watch-in">
+      <div className="relative mt-3 watch-in">
         <div className="shimmer rounded-full">
-          <WatchVisual watch={watch} size={250} />
+          <WatchVisual watch={watch} size={244} />
         </div>
       </div>
 
       {/* name */}
-      <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gold rise-in" style={{ animationDelay: "120ms" }}>
+      <p className="mt-3 text-xs uppercase tracking-[0.2em] text-gold rise-in" style={{ animationDelay: "120ms" }}>
         {watch.brand}
       </p>
       <h2 className="mt-1 font-display text-[1.7rem] font-light leading-tight text-hi rise-in" style={{ animationDelay: "160ms" }}>
@@ -102,16 +188,18 @@ export default function Result({ reading, onRetry }: { reading: Reading; onRetry
         {reading.reason}
       </p>
 
-      {/* spec row */}
-      <div className="mt-5 grid w-full grid-cols-2 gap-2.5 rise-in" style={{ animationDelay: "280ms" }}>
-        <div className="rounded-[var(--radius-md)] border border-border bg-raised px-4 py-3 text-left">
-          <p className="text-[0.65rem] uppercase tracking-[0.18em] text-low">Case</p>
-          <p className="mt-0.5 text-sm text-hi">{watch.caseMaterial}</p>
-        </div>
-        <div className="rounded-[var(--radius-md)] border border-border bg-raised px-4 py-3 text-left">
-          <p className="text-[0.65rem] uppercase tracking-[0.18em] text-low">Dial</p>
-          <p className="mt-0.5 text-sm text-hi">{watch.dialColor}</p>
-        </div>
+      {/* spec row: case / dial / strap */}
+      <div className="mt-5 grid w-full grid-cols-3 gap-2.5 rise-in" style={{ animationDelay: "280ms" }}>
+        {[
+          { k: "Case", v: watch.caseMaterial },
+          { k: "Dial", v: watch.dialColor },
+          { k: "Strap", v: recipe.strapText },
+        ].map((s) => (
+          <div key={s.k} className="rounded-[var(--radius-md)] border border-border bg-raised px-3 py-3 text-left">
+            <p className="text-[0.6rem] uppercase tracking-[0.16em] text-low">{s.k}</p>
+            <p className="mt-0.5 text-[0.82rem] leading-tight text-hi">{s.v}</p>
+          </div>
+        ))}
       </div>
 
       {/* why this watch */}
@@ -138,12 +226,12 @@ export default function Result({ reading, onRetry }: { reading: Reading; onRetry
           {watch.owned ? (
             <>This watch is real — it&apos;s part of the actual collection.</>
           ) : (
-            <>This is one of the icons. The real vault sits on Instagram.</>
+            <>One of the pieces a real collector would chase.</>
           )}
         </p>
         <p className="mt-1 text-sm text-mid">
           {watch.owned ? "See it (and 9 others) on" : "See the collection on"}{" "}
-          <span className="text-gold-bright">{`@gptwatchcollector`}</span>.
+          <span className="text-gold-bright">@gptwatchcollector</span>.
         </p>
         <a
           href={IG_URL}

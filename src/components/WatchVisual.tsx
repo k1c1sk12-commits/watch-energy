@@ -4,13 +4,14 @@ import { useId, type Ref } from "react";
 import type { Complication, Metal, Watch } from "@/lib/types";
 
 // Three-stop metal gradients (top highlight -> mid -> lower shade).
-const METAL: Record<Metal, [string, string, string]> = {
+export const METAL: Record<Metal, [string, string, string]> = {
   steel: ["#eef0f2", "#aab0b6", "#d2d6da"],
   whiteGold: ["#f4f5f6", "#c2c6cb", "#e2e5e8"],
   yellowGold: ["#f8ecb8", "#caa23f", "#ecca6a"],
   roseGold: ["#f6dcc9", "#cd8e6c", "#e9b194"],
   titanium: ["#d2d5d7", "#888d92", "#b0b4b8"],
   platinum: ["#eff1f2", "#b6bbc0", "#d9dce0"],
+  tantalum: ["#9fabba", "#454f5e", "#6d7888"], // dense blue-grey
   ceramicBlack: ["#3c3c41", "#101012", "#2a2a2e"],
   steelCeramic: ["#e4e7ea", "#7d8389", "#bcc1c6"],
 };

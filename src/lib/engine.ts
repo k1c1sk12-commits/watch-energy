@@ -1,4 +1,12 @@
-import { ENERGIES, type Energy, type Reading, type Vibe, type Watch } from "./types";
+import {
+  ENERGIES,
+  type Energy,
+  type Reading,
+  type Recipe,
+  type StrapType,
+  type Vibe,
+  type Watch,
+} from "./types";
 import { WATCHES } from "./watches";
 
 // ---------------------------------------------------------------------------
@@ -119,34 +127,51 @@ function rel(E: Energy, A: Energy): number {
   return 2; // neutral safety
 }
 
+// Strap type -> energy. MUST mirror each watch's `strapEnergy` (self-test checks).
+export const STRAP_ENERGY: Record<StrapType, Energy> = {
+  integratedSteelBracelet: "LUMEN",
+  steelBracelet: "LUMEN",
+  brownLeather: "TERRA",
+  blackLeather: "TIDE",
+  blueLeather: "TIDE",
+  greenTextile: "VERDANT",
+  blueRubber: "TIDE",
+  blackRubber: "EMBER",
+  blueTextile: "TIDE",
+};
+
+// Score a watch against the user's base energy + vibe across all THREE slots.
+// Case dominates, dial second, strap lightest (the most swappable component in
+// real life, so it tilts ties rather than driving picks). Owned pieces — the
+// real collection — get a gentle nudge so the "this is actually his" payoff lands.
 function scoreWatch(w: Watch, base: Energy, vibe: Vibe): number {
   const target = VIBE_TARGET[vibe];
-  const baseScore = rel(w.caseEnergy, base) * 1.0 + rel(w.dialEnergy, base) * 0.8;
-  const vibeScore = rel(w.caseEnergy, target) * 0.7 + rel(w.dialEnergy, target) * 0.7;
-  // Gentle nudge toward the real collection: the payoff of the experience is
-  // "this watch is actually his — go see it on Instagram", so owned pieces
-  // should surface a little more often without crowding out variety.
+  const baseScore =
+    rel(w.caseEnergy, base) * 1.0 +
+    rel(w.dialEnergy, base) * 0.8 +
+    rel(w.strapEnergy, base) * 0.5;
+  const vibeScore =
+    rel(w.caseEnergy, target) * 0.7 +
+    rel(w.dialEnergy, target) * 0.7 +
+    rel(w.strapEnergy, target) * 0.4;
   const ownedBonus = w.owned ? 0.25 : 0;
   return baseScore + vibeScore + ownedBonus;
 }
 
-const SCORE_MIN = 3.2;
-const SCORE_MAX = 12.8;
+const SCORE_MIN = 4.1; // all rel = 1, unowned
+const SCORE_MAX = 16.65; // all rel = 4, owned
 
-// Width of the "still a great match" band below the top score. Watches within
-// this band of the best score become candidates; the exact pick is then chosen
-// deterministically from the full birth date + vibe. This keeps every result
-// highly relevant while spreading outcomes across the pool, so different people
-// with the same base energy can still discover different watches (and the whole
-// collection is reachable, powering the "unlock the set" mechanic).
-const BAND = 1.4;
+// Width of the "still a great match" band below the top score. Candidates inside
+// it are picked from deterministically by the full birth date, so the whole
+// collection stays reachable (the "unlock the set" mechanic) while every result
+// is a genuinely close match.
+const BAND = 1.85;
 
 function pickWatch(pool: Watch[], base: Energy, vibe: Vibe, seed: string): Watch {
   const scored = pool.map((w) => ({ w, s: scoreWatch(w, base, vibe) }));
   const maxS = Math.max(...scored.map((x) => x.s));
   const candidates = scored
     .filter((x) => x.s >= maxS - BAND)
-    // Stable ordering for reproducible indexing: score desc, then id.
     .sort((a, b) => b.s - a.s || (a.w.id < b.w.id ? -1 : 1))
     .map((x) => x.w);
   if (candidates.length === 1) return candidates[0];
@@ -159,6 +184,34 @@ function matchPercent(score: number, seed: string, vibe: Vibe): number {
   const base = 80 + norm * 17;
   const jitter = hashStr(seed + vibe) % 3;
   return Math.min(99, Math.round(base + jitter));
+}
+
+// Human label for a concrete strap type (used in chips, the recipe, the card).
+export const STRAP_CHIP: Record<StrapType, string> = {
+  integratedSteelBracelet: "Integrated bracelet",
+  steelBracelet: "Steel bracelet",
+  brownLeather: "Brown leather",
+  blackLeather: "Black leather",
+  blueLeather: "Blue leather",
+  greenTextile: "Green textile",
+  blueRubber: "Blue rubber",
+  blackRubber: "Black rubber",
+  blueTextile: "Blue textile",
+};
+
+// The "recipe" is the destiny watch's OWN configuration, surfaced BEFORE its
+// name. It always matches the watch (no aspiration gap) — the drama is simply
+// hiding the brand until after the configuration has landed.
+function buildRecipe(w: Watch): Recipe {
+  const clean = (s: string) => s.replace(/\s*\([^)]*\)/g, "").trim();
+  return {
+    caseEnergy: w.caseEnergy,
+    dialEnergy: w.dialEnergy,
+    strapEnergy: w.strapEnergy,
+    caseText: clean(w.caseMaterial),
+    dialText: clean(w.dialColor),
+    strapText: STRAP_CHIP[w.strapType],
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -293,6 +346,7 @@ export function getReading(dob: DOB, vibe: Vibe, pool: Watch[] = WATCHES): Readi
     vibe,
     matchPercent: matchPercent(score, seed, vibe),
     rarity: watch.rarity,
+    recipe: buildRecipe(watch),
     reason: buildReason(watch, base, vibe, seed),
     traits: buildTraits(watch, base, vibe, seed),
     seed,
@@ -307,6 +361,12 @@ export function assertPoolBalance(pool: Watch[] = WATCHES): string[] {
   for (const e of ENERGIES) {
     if (!pool.some((w) => w.caseEnergy === e)) errors.push(`No case covers ${e}`);
     if (!pool.some((w) => w.dialEnergy === e)) errors.push(`No dial covers ${e}`);
+    if (!pool.some((w) => w.strapEnergy === e)) errors.push(`No strap covers ${e}`);
+  }
+  for (const w of pool) {
+    if (STRAP_ENERGY[w.strapType] !== w.strapEnergy) {
+      errors.push(`strap energy mismatch on ${w.id}`);
+    }
   }
   return errors;
 }

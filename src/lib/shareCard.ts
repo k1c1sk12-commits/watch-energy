@@ -42,38 +42,46 @@ const LOW = "#7d7a73";
 
 /** Build the full 9:16 share-card SVG as a string, embedding the watch markup. */
 export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
-  const { watch } = reading;
-  const modelLines = wrap(`${watch.model}`, 20, 2);
-  // The card carries one punchy line (the watch's signature), never the full
-  // multi-sentence reason — so it always fits and never truncates mid-thought.
-  const lineLines = wrap(watch.signature, 38, 3);
+  const { watch, recipe } = reading;
+  // Recipe leads the card (the legible, shareable hook); the watch is the reveal.
+  const recipeStr = `${recipe.caseText}  ·  ${recipe.dialText}  ·  ${recipe.strapText}`;
+  const recipeLines = wrap(recipeStr, 26, 2);
+  const modelLines = wrap(`${watch.model}`, 22, 2);
+  const sigLines = wrap(watch.signature, 40, 2);
+
+  const recipeSvg = recipeLines
+    .map(
+      (l, i) =>
+        `<text x="${W / 2}" y="${324 + i * 56}" text-anchor="middle" font-family="${SERIF}" font-size="46" fill="${HI}">${escapeXml(
+          l,
+        )}</text>`,
+    )
+    .join("");
 
   const modelSvg = modelLines
     .map(
       (l, i) =>
-        `<text x="${W / 2}" y="${1030 + i * 66}" text-anchor="middle" font-family="${SERIF}" font-size="56" fill="${HI}">${escapeXml(
+        `<text x="${W / 2}" y="${1078 + i * 60}" text-anchor="middle" font-family="${SERIF}" font-size="52" fill="${HI}">${escapeXml(
           l,
         )}</text>`,
     )
     .join("");
 
-  // vertically centre the 1–3 signature lines around y≈1430
-  const lineStart = 1430 - (lineLines.length - 1) * 24;
-  const reasonSvg = lineLines
+  const sigStart = 1430 - (sigLines.length - 1) * 26;
+  const sigSvg = sigLines
     .map(
       (l, i) =>
-        `<text x="${W / 2}" y="${lineStart + i * 48}" text-anchor="middle" font-family="${SERIF}" font-style="italic" font-size="34" fill="${MID}">${escapeXml(
+        `<text x="${W / 2}" y="${sigStart + i * 50}" text-anchor="middle" font-family="${SERIF}" font-style="italic" font-size="33" fill="${MID}">${escapeXml(
           l,
         )}</text>`,
     )
     .join("");
 
-  // Re-namespace the watch svg and place it in a fixed box at the top. Strip
-  // any existing width/height first, then set the box — order matters so the
-  // intended size always wins regardless of the source render size.
+  // Re-namespace the watch svg and place it in a fixed box. Strip any existing
+  // width/height first, then set the box — order matters so the size always wins.
   const watchBox = watchInnerSvg
     .replace(/\s(?:width|height)="[^"]*"/g, "")
-    .replace(/^<svg/, `<svg xmlns="http://www.w3.org/2000/svg" x="260" y="300" width="560" height="560"`);
+    .replace(/^<svg/, `<svg xmlns="http://www.w3.org/2000/svg" x="290" y="430" width="500" height="500"`);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
@@ -82,7 +90,7 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
       <stop offset="0.5" stop-color="#0a0a0b"/>
       <stop offset="1" stop-color="#08080a"/>
     </linearGradient>
-    <radialGradient id="cardglow" cx="0.5" cy="0.26" r="0.5">
+    <radialGradient id="cardglow" cx="0.5" cy="0.32" r="0.5">
       <stop offset="0" stop-color="${GOLD}" stop-opacity="0.16"/>
       <stop offset="1" stop-color="${GOLD}" stop-opacity="0"/>
     </radialGradient>
@@ -93,46 +101,39 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
   <rect x="34" y="34" width="${W - 68}" height="${H - 68}" rx="28" fill="none" stroke="${GOLD}" stroke-opacity="0.22" stroke-width="1.5"/>
 
   <!-- wordmark -->
-  <text x="${W / 2}" y="172" text-anchor="middle" font-family="${SANS}" font-size="30" letter-spacing="10" fill="${GOLD}">WATCH ENERGY</text>
-  <line x1="${W / 2 - 70}" y1="200" x2="${W / 2 + 70}" y2="200" stroke="${GOLD}" stroke-opacity="0.5" stroke-width="1.5"/>
+  <text x="${W / 2}" y="168" text-anchor="middle" font-family="${SANS}" font-size="30" letter-spacing="10" fill="${GOLD}">WATCH ENERGY</text>
+  <line x1="${W / 2 - 70}" y1="196" x2="${W / 2 + 70}" y2="196" stroke="${GOLD}" stroke-opacity="0.5" stroke-width="1.5"/>
+
+  <!-- recipe (the hook) -->
+  <text x="${W / 2}" y="258" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="6" fill="${GOLD}">YOUR ENERGY RECIPE</text>
+  ${recipeSvg}
 
   <!-- watch -->
   ${watchBox}
 
   <!-- brand + model -->
-  <text x="${W / 2}" y="950" text-anchor="middle" font-family="${SANS}" font-size="26" letter-spacing="6" fill="${GOLD}">${escapeXml(
+  <text x="${W / 2}" y="1000" text-anchor="middle" font-family="${SANS}" font-size="25" letter-spacing="6" fill="${GOLD}">${escapeXml(
     watch.brand.toUpperCase(),
   )}</text>
   ${modelSvg}
 
   <!-- match + rarity pills -->
   <g>
-    <rect x="${W / 2 - 250}" y="1120" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
-    <text x="${W / 2 - 130}" y="1166" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">${reading.matchPercent}%</text>
-    <text x="${W / 2 - 130}" y="1192" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">ENERGY MATCH</text>
+    <rect x="${W / 2 - 250}" y="1196" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
+    <text x="${W / 2 - 130}" y="1242" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">${reading.matchPercent}%</text>
+    <text x="${W / 2 - 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">ENERGY MATCH</text>
 
-    <rect x="${W / 2 + 10}" y="1120" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
-    <text x="${W / 2 + 130}" y="1166" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">TOP ${reading.rarity}%</text>
-    <text x="${W / 2 + 130}" y="1192" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">RARITY</text>
+    <rect x="${W / 2 + 10}" y="1196" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
+    <text x="${W / 2 + 130}" y="1242" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">TOP ${reading.rarity}%</text>
+    <text x="${W / 2 + 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">RARITY</text>
   </g>
 
-  <!-- reasoning -->
-  ${reasonSvg}
-
-  <!-- spec chips -->
-  <g font-family="${SANS}">
-    <rect x="${W / 2 - 330}" y="1610" width="320" height="74" rx="14" fill="#16161a" stroke="${GOLD}" stroke-opacity="0.25"/>
-    <text x="${W / 2 - 170}" y="1645" text-anchor="middle" font-size="18" letter-spacing="3" fill="${LOW}">CASE</text>
-    <text x="${W / 2 - 170}" y="1672" text-anchor="middle" font-size="24" fill="${HI}">${escapeXml(watch.caseMaterial)}</text>
-
-    <rect x="${W / 2 + 10}" y="1610" width="320" height="74" rx="14" fill="#16161a" stroke="${GOLD}" stroke-opacity="0.25"/>
-    <text x="${W / 2 + 170}" y="1645" text-anchor="middle" font-size="18" letter-spacing="3" fill="${LOW}">DIAL</text>
-    <text x="${W / 2 + 170}" y="1672" text-anchor="middle" font-size="24" fill="${HI}">${escapeXml(watch.dialColor)}</text>
-  </g>
+  <!-- signature -->
+  ${sigSvg}
 
   <!-- handle -->
-  <text x="${W / 2}" y="1810" text-anchor="middle" font-family="${SERIF}" font-size="42" fill="${GOLD_HI}">${HANDLE}</text>
-  <text x="${W / 2}" y="1852" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="4" fill="${LOW}">FIND YOUR WATCH ENERGY</text>
+  <text x="${W / 2}" y="1800" text-anchor="middle" font-family="${SERIF}" font-size="42" fill="${GOLD_HI}">${HANDLE}</text>
+  <text x="${W / 2}" y="1844" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="4" fill="${LOW}">FIND YOUR WATCH ENERGY</text>
 </svg>`;
 }
 

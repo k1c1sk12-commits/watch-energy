@@ -13,8 +13,21 @@ export type Metal =
   | "roseGold"
   | "titanium"
   | "platinum"
+  | "tantalum"
   | "ceramicBlack"
   | "steelCeramic";
+
+// ----- Strap / bracelet dimension -----
+export type StrapType =
+  | "integratedSteelBracelet" // Royal Oak / Nautilus / Overseas — design-locked
+  | "steelBracelet" // non-integrated (Submariner, Speedmaster)
+  | "brownLeather"
+  | "blackLeather"
+  | "blueLeather"
+  | "greenTextile" // NATO / fabric
+  | "blueRubber"
+  | "blackRubber"
+  | "blueTextile";
 
 export type Complication =
   | "time" // clean two/three-hand
@@ -38,6 +51,8 @@ export interface Watch {
   dialColor: string;
   caseEnergy: Energy;
   dialEnergy: Energy;
+  strapType: StrapType;
+  strapEnergy: Energy;
   signature: string; // evocative one-liner
   fact: string; // one accurate horological fact
   owned: boolean; // part of the real collection
@@ -47,6 +62,16 @@ export interface Watch {
   complication: Complication;
 }
 
+// ----- The energy "recipe": the ideal configuration derived from the user -----
+export interface Recipe {
+  caseEnergy: Energy;
+  dialEnergy: Energy;
+  strapEnergy: Energy;
+  caseText: string;
+  dialText: string;
+  strapText: string;
+}
+
 // ----- A computed reading -----
 export interface Reading {
   watch: Watch;
@@ -54,6 +79,7 @@ export interface Reading {
   vibe: Vibe;
   matchPercent: number;
   rarity: number;
+  recipe: Recipe;
   reason: string;
   traits: string[];
   seed: string;

@@ -35,10 +35,11 @@ export default function Experience() {
     [],
   );
 
-  // auto-advance from the reading animation to the result
+  // auto-advance from the brief reading animation into the result (whose first
+  // act is the energy-recipe build-up, so this stays short to avoid two waits).
   useEffect(() => {
     if (phase !== "reading") return;
-    const dur = reduced ? 700 : 2600;
+    const dur = reduced ? 500 : 1300;
     timer.current = setTimeout(() => setPhase("result"), dur);
     return () => {
       if (timer.current) clearTimeout(timer.current);
