@@ -26,7 +26,8 @@ export type Complication =
   | "wandering" // off-centre wandering hours
   | "digital" // jumping-hour windows
   | "dive" // rotating bezel + lume
-  | "pilot"; // oversized crown + triangle
+  | "pilot" // oversized crown + triangle
+  | "chiming"; // exposed hammer + gong (sonnerie)
 
 export interface Watch {
   id: string;

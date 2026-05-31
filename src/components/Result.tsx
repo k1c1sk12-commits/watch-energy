@@ -10,12 +10,9 @@ import WatchVisual from "./WatchVisual";
 const IG_URL = "https://www.instagram.com/gptwatchcollector/";
 
 function useCountUp(target: number, durationMs: number, animate: boolean): number {
-  const [v, setV] = useState(animate ? 0 : target);
+  const [v, setV] = useState(0);
   useEffect(() => {
-    if (!animate) {
-      setV(target);
-      return;
-    }
+    if (!animate) return;
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -27,7 +24,8 @@ function useCountUp(target: number, durationMs: number, animate: boolean): numbe
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [target, durationMs, animate]);
-  return v;
+  // When motion is reduced, skip the animation and show the final value.
+  return animate ? v : target;
 }
 
 export default function Result({ reading, onRetry }: { reading: Reading; onRetry: () => void }) {

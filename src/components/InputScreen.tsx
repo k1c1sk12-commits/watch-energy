@@ -27,6 +27,7 @@ export default function InputScreen({
   const [iso, setIso] = useState(initialDate);
   const [vibe, setVibe] = useState<Vibe | null>(initialVibe);
   const dateRef = useRef<HTMLInputElement>(null);
+  const chipRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const ready = Boolean(iso) && Boolean(vibe);
   const justReady = useMemo(() => ready, [ready]);
@@ -46,16 +47,7 @@ export default function InputScreen({
         <label htmlFor="dob" className="mb-2 block text-sm font-medium text-mid">
           When were you born?
         </label>
-        <button
-          type="button"
-          onClick={() => {
-            const el = dateRef.current;
-            if (!el) return;
-            if (typeof el.showPicker === "function") el.showPicker();
-            else el.focus();
-          }}
-          className="relative flex w-full items-center justify-between rounded-[var(--radius-md)] border border-border bg-overlay px-5 py-4 text-left transition-colors hover:border-border-gold focus-within:border-border-gold"
-        >
+        <div className="relative flex w-full items-center justify-between rounded-[var(--radius-md)] border border-border bg-overlay px-5 py-4 text-left transition-colors hover:border-border-gold focus-within:border-border-gold">
           <span className={iso ? "text-hi" : "text-low"}>
             {iso ? formatNice(iso) : "Select your date"}
           </span>
@@ -71,10 +63,19 @@ export default function InputScreen({
             min="1900-01-01"
             max={MAX_DATE}
             onChange={(e) => setIso(e.target.value)}
+            onClick={() => {
+              const el = dateRef.current;
+              if (!el) return;
+              try {
+                el.showPicker?.();
+              } catch {
+                /* picker already open — ignore */
+              }
+            }}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             aria-label="Birth date"
           />
-        </button>
+        </div>
         <p className="mt-2 text-xs text-low">Just for the reading — nothing is stored or sent.</p>
       </div>
 
@@ -84,15 +85,30 @@ export default function InputScreen({
           Pick today&apos;s energy
         </p>
         <div role="radiogroup" aria-labelledby="vibe-label" className="grid grid-cols-2 gap-2.5">
-          {VIBES.map((v) => {
+          {VIBES.map((v, i) => {
             const meta = VIBE_META[v];
             const selected = vibe === v;
+            // Roving tabindex: the selected chip (or the first, if none yet) is
+            // the single tab stop; arrow keys move and select.
+            const tabbable = vibe ? selected : i === 0;
             return (
               <button
                 key={v}
+                ref={(el) => {
+                  chipRefs.current[i] = el;
+                }}
                 role="radio"
                 aria-checked={selected}
+                tabIndex={tabbable ? 0 : -1}
                 onClick={() => setVibe(v)}
+                onKeyDown={(e) => {
+                  if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
+                  e.preventDefault();
+                  const dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+                  const next = (i + dir + VIBES.length) % VIBES.length;
+                  setVibe(VIBES[next]);
+                  chipRefs.current[next]?.focus();
+                }}
                 className={[
                   "flex min-h-[60px] flex-col items-start justify-center rounded-[var(--radius-sm)] border px-4 py-3 text-left transition-all duration-200",
                   selected

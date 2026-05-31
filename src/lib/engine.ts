@@ -212,7 +212,10 @@ function article(word: string): string {
 
 function buildReason(w: Watch, base: Energy, vibe: Vibe, seed: string): string {
   const s = seed + "|" + vibe + "|" + w.id;
-  const dial = `${w.dialColor.toLowerCase()} dial`;
+  // Strip parentheticals ("Silver (argenté)" -> "silver") so the colour reads
+  // cleanly inside a flowing sentence; the full label still shows in the chip.
+  const dialClean = w.dialColor.toLowerCase().replace(/\s*\([^)]*\)/g, "").trim();
+  const dial = `${dialClean} dial`;
   const dialAdj = pick(ENERGY_ADJ[w.dialEnergy], s, "da");
   const s1 = `Your ${pick(ENERGY_ADJ[base], s, "ba")} energy ${pick(
     VERB_OPEN,

@@ -15,9 +15,12 @@ const METAL: Record<Metal, [string, string, string]> = {
   steelCeramic: ["#e4e7ea", "#7d8389", "#bcc1c6"],
 };
 
-function caseShape(model: string): "octagon" | "rect" | "round" {
+type Shape = "octagon" | "rect" | "round" | "ellipse";
+
+function caseShape(brand: string, model: string): Shape {
   if (/royal oak/i.test(model)) return "octagon";
   if (/reverso|tank/i.test(model)) return "rect";
+  if (/daniel roth/i.test(brand)) return "ellipse"; // signature double-ellipse
   return "round";
 }
 
@@ -43,7 +46,7 @@ interface Props {
 export default function WatchVisual({ watch, size = 240, className, still = false, ref }: Props) {
   const uid = useId().replace(/[:]/g, "");
   const metal = METAL[watch.metal];
-  const shape = caseShape(watch.model);
+  const shape = caseShape(watch.brand, watch.model);
   const dial = watch.dialHex;
   const C = 100; // centre
   const gold = "#c9a86a";
@@ -115,10 +118,19 @@ export default function WatchVisual({ watch, size = 240, className, still = fals
             <rect x={28} y={175} width={144} height={5} rx={2.5} fill={darken(metal[2], 0.15)} opacity="0.6" />
           </>
         )}
+        {shape === "ellipse" && (
+          <>
+            {/* Daniel Roth signature double-ellipse */}
+            <ellipse cx={C} cy={C} rx={78} ry={94} fill={`url(#m${uid})`} />
+            <ellipse cx={C} cy={C} rx={68} ry={84} fill={darken(metal[2], 0.12)} />
+          </>
+        )}
 
         {/* ---- dial ---- */}
         {shape === "rect" ? (
           <rect x={46} y={34} width={108} height={132} rx={8} fill={`url(#d${uid})`} />
+        ) : shape === "ellipse" ? (
+          <ellipse cx={C} cy={C} rx={60} ry={76} fill={`url(#d${uid})`} />
         ) : (
           <circle cx={C} cy={C} r={shape === "octagon" ? 74 : 72} fill={`url(#d${uid})`} />
         )}
@@ -131,7 +143,6 @@ export default function WatchVisual({ watch, size = 240, className, still = fals
           hand={handColor}
           gold={gold}
           dial={dial}
-          uid={uid}
           still={still}
         />
 
@@ -158,16 +169,14 @@ function DialFurniture({
   hand,
   gold,
   dial,
-  uid,
   still,
 }: {
   complication: Complication;
-  shape: "octagon" | "rect" | "round";
+  shape: Shape;
   tick: string;
   hand: string;
   gold: string;
   dial: string;
-  uid: string;
   still: boolean;
 }) {
   const C = 100;
@@ -319,6 +328,18 @@ function DialFurniture({
               </text>
             );
           })}
+          {hands}
+        </>
+      );
+    case "chiming":
+      return (
+        <>
+          {/* exposed hammer + gong arc (sonnerie au passage) */}
+          {markers}
+          <path d={`M58 ${C + 8} A44 44 0 0 1 142 ${C + 8}`} fill="none" stroke={gold} strokeWidth={1.6} opacity="0.85" />
+          <circle cx={70} cy={C + 4} r={4.5} fill={gold} />
+          <line x1={70} y1={C + 4} x2={86} y2={C - 8} stroke={gold} strokeWidth={1.6} strokeLinecap="round" />
+          <circle cx={88} cy={C - 10} r={3} fill={darken(dial, 0.3)} stroke={gold} strokeWidth={0.8} />
           {hands}
         </>
       );

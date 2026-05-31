@@ -44,7 +44,9 @@ const LOW = "#7d7a73";
 export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
   const { watch } = reading;
   const modelLines = wrap(`${watch.model}`, 20, 2);
-  const reasonLines = wrap(reading.reason, 42, 4);
+  // The card carries one punchy line (the watch's signature), never the full
+  // multi-sentence reason — so it always fits and never truncates mid-thought.
+  const lineLines = wrap(watch.signature, 38, 3);
 
   const modelSvg = modelLines
     .map(
@@ -55,20 +57,23 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
     )
     .join("");
 
-  const reasonSvg = reasonLines
+  // vertically centre the 1–3 signature lines around y≈1430
+  const lineStart = 1430 - (lineLines.length - 1) * 24;
+  const reasonSvg = lineLines
     .map(
       (l, i) =>
-        `<text x="${W / 2}" y="${1400 + i * 46}" text-anchor="middle" font-family="${SANS}" font-size="30" fill="${MID}">${escapeXml(
+        `<text x="${W / 2}" y="${lineStart + i * 48}" text-anchor="middle" font-family="${SERIF}" font-style="italic" font-size="34" fill="${MID}">${escapeXml(
           l,
         )}</text>`,
     )
     .join("");
 
-  // Re-namespace the watch svg and size it into a 560px box centred at the top.
+  // Re-namespace the watch svg and place it in a fixed box at the top. Strip
+  // any existing width/height first, then set the box — order matters so the
+  // intended size always wins regardless of the source render size.
   const watchBox = watchInnerSvg
-    .replace(/^<svg/, `<svg xmlns="http://www.w3.org/2000/svg" x="260" y="300" width="560" height="560"`)
-    .replace(/\swidth="\d+"/, "")
-    .replace(/\sheight="\d+"/, "");
+    .replace(/\s(?:width|height)="[^"]*"/g, "")
+    .replace(/^<svg/, `<svg xmlns="http://www.w3.org/2000/svg" x="260" y="300" width="560" height="560"`);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>

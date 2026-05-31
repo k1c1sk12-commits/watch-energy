@@ -163,7 +163,7 @@ export const WATCHES: Watch[] = [
     rarity: 10,
     metal: "titanium",
     dialHex: "#e29873",
-    complication: "tourbillon",
+    complication: "chiming",
   },
   {
     id: "breguet-3357ba",
