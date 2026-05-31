@@ -1,26 +1,227 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background layers (dark luxe) */
+  --bg-base: #0a0a0b;
+  --bg-raised: #121214;
+  --bg-overlay: #1a1a1d;
+  --bg-hover: #232327;
+
+  /* Gold accent (warm, not yellow) */
+  --gold: #c9a86a;
+  --gold-bright: #e6c98f;
+  --gold-deep: #9a7e48;
+  --gold-glow: rgba(201, 168, 106, 0.28);
+
+  /* Text tiers */
+  --text-hi: #f5f3ee;
+  --text-mid: #b5b2ab;
+  --text-low: #6e6c68;
+
+  /* Functional */
+  --match: #c9a86a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(201, 168, 106, 0.45);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-base: var(--bg-base);
+  --color-raised: var(--bg-raised);
+  --color-overlay: var(--bg-overlay);
+  --color-hover: var(--bg-hover);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+  --color-hi: var(--text-hi);
+  --color-mid: var(--text-mid);
+  --color-low: var(--text-low);
+  --color-border: var(--border);
+  --color-border-gold: var(--border-gold);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--bg-base);
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(201, 168, 106, 0.06), transparent 60%),
+    var(--bg-base);
+  color: var(--text-hi);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Typographic helpers ---------- */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* ---------- Focus ---------- */
+:where(button, a, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Gold shimmer (one-shot) ---------- */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(230, 201, 143, 0.45) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: shimmer-sweep 1200ms var(--ease-luxe) 1 both;
+}
+@keyframes shimmer-sweep {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* ---------- Loading ring ---------- */
+@keyframes ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Entrance utilities ---------- */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise-in {
+  animation: rise-in 600ms var(--ease-luxe) both;
+}
+
+@keyframes watch-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.watch-in {
+  animation: watch-in 700ms var(--ease-luxe) 120ms both;
+}
+
+@keyframes glow-up {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.55;
+  }
+}
+
+@keyframes pulse-once {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+.pulse-once {
+  animation: pulse-once 420ms ease-out 1;
+}
+
+/* fade for loading status text */
+@keyframes status-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  20%,
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* slow rotating decorative sweep */
+@keyframes slow-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* count number tabular */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* hide native date placeholder styling quirks */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) sepia(1) saturate(2) hue-rotate(5deg);
+  cursor: pointer;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .shimmer::after {
+    display: none;
+  }
+}
+
+::selection {
+  background: var(--gold-glow);
+  color: var(--text-hi);
 }

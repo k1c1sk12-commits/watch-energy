@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Watch Energy
 
-## Getting Started
+A playful, mobile-first web experience: enter your birth date and today's mood, and get **one** haute-horlogerie watch matched to your **energy** — case, dial, and the reading behind it. Built to drive traffic and follows to **[@gptwatchcollector](https://www.instagram.com/gptwatchcollector/)**.
 
-First, run the development server:
+International English · dark-luxe + gold · no sign-up · ~15 seconds to a shareable result.
+
+> For fun. Not financial or astrological advice.
+
+---
+
+## What it does
+
+1. **Two taps** — a birth date and one of five energy vibes (Calm · Bold · Focused · Magnetic · Grounded).
+2. **A reading** — a short reveal animation, then a single watch with an animated *energy match %* and a *rarity* stamp.
+3. **A reason** — two or three sentences linking your energy + today's vibe to the watch's case material and dial colour.
+4. **A share card** — a baked 1080×1920 (9:16) image with the watch, match %, rarity and the `@gptwatchcollector` handle, ready for Instagram Stories via the native share sheet (downloads on desktop). Plus a one-tap *Copy caption*.
+5. **A follow CTA** — the result frames the watch as part of a real collection and points to Instagram.
+
+The pool is **22 watches** — the real collection (10 pieces) plus iconic references. Owned pieces surface a little more often, so the payoff ("this is actually his — go see it") lands. Every result is **deterministic**: same date + same vibe always gives the same watch.
+
+## How the engine works (no astrology dependencies)
+
+- **Five energies** — `Verdant · Ember · Terra · Lumen · Tide` — internal mappings of a five-element cycle, surfaced only as "energy". No feng-shui / zodiac vocabulary in the UI.
+- **Base energy** is derived deterministically from the birth date (`digitSum(year) + month + day mod 5`).
+- **Vibe** biases the match toward a target energy.
+- **Scoring** rates each watch's case + dial energies against your base energy and vibe; the result is picked from the top "still a great match" band, seeded by your full date so different people discover different watches.
+- **Match %** maps the score into a flattering 80–99 band.
+
+Everything lives in [`src/lib/`](src/lib/): `engine.ts`, `watches.ts`, `types.ts`, `shareCard.ts`.
+
+Run the engine integrity checks (pool balance, distribution, determinism, validation):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run verify
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Develop
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev          # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Stack: **Next.js 16** (App Router) · **React 19** · **Tailwind v4** · `next/font` (Fraunces + Inter) · `next/og` for the link-preview image. The watch illustrations are **generated SVG** — no image assets, no licensing.
 
-## Learn More
+## Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+This is a standard Next.js app — zero config needed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Option A — Dashboard**
+1. Push this folder to a GitHub repo.
+2. On [vercel.com](https://vercel.com) → *New Project* → import the repo.
+3. (Optional) add the env var `NEXT_PUBLIC_SITE_URL` = your production URL.
+4. Deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Option B — CLI**
+```bash
+npm i -g vercel
+vercel            # preview
+vercel --prod     # production
+```
 
-## Deploy on Vercel
+After the first deploy, set `NEXT_PUBLIC_SITE_URL` in *Project → Settings → Environment Variables* to your real domain so Open Graph / share links are correct, then redeploy.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Customising
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Watches** — edit [`src/lib/watches.ts`](src/lib/watches.ts) (each entry has display fields, `caseEnergy` / `dialEnergy`, a `rarity`, and visual hints for the SVG). Keep all five energies covered on both the case and dial slots — `npm run verify` will flag gaps.
+- **Copy / vibes / energy names** — [`src/lib/engine.ts`](src/lib/engine.ts).
+- **Look & feel** — design tokens in [`src/app/globals.css`](src/app/globals.css).
+- **Instagram handle** — search for `gptwatchcollector` across `src/`.
