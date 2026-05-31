@@ -86,7 +86,7 @@ export default function InputScreen({
   onReveal: (d: RevealData) => void;
 }) {
   const [name, setName] = useState(initial.name ?? "");
-  const [iso, setIso] = useState(initial.iso ?? "");
+  const [iso, setIso] = useState(initial.iso ?? "1987-11-01");
   const [nature, setNature] = useState<Vibe | null>(initial.nature ?? null);
   const [answers, setAnswers] = useState<Partial<Record<QuestionKey, Energy>>>(initial.answers ?? {});
   const dateRef = useRef<HTMLInputElement>(null);
