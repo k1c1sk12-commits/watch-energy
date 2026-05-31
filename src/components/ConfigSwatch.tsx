@@ -48,6 +48,7 @@ const STRAP_COLOR: Record<StrapType, string> = {
   blackLeather: "#1d1d20",
   blueLeather: "#27406d",
   whiteLeather: "#e6e3db",
+  greyLeather: "#6e6e72",
   greenTextile: "#3f6b4a",
   blueRubber: "#21507e",
   blackRubber: "#1a1a1d",
