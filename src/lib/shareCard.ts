@@ -1,8 +1,11 @@
+import { IMAGE_READY } from "./imageManifest";
 import type { Reading } from "./types";
 
 const HANDLE = "@gptwatchcollector";
 const W = 1080;
 const H = 1920;
+// Where the watch illustration sits on the card (shared by the SVG + PNG paths).
+const WATCH_BOX = { x: 290, y: 430, w: 500, h: 500 };
 
 function escapeXml(s: string): string {
   return s
@@ -41,7 +44,7 @@ const MID = "#b5b2ab";
 const LOW = "#7d7a73";
 
 /** Build the full 9:16 share-card SVG as a string, embedding the watch markup. */
-export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
+export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): string {
   const { watch, recipe } = reading;
   // Recipe leads the card (the legible, shareable hook); the watch is the reveal.
   const recipeStr = `${recipe.caseText}  ·  ${recipe.dialText}  ·  ${recipe.strapText}`;
@@ -77,11 +80,17 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
     )
     .join("");
 
-  // Re-namespace the watch svg and place it in a fixed box. Strip any existing
-  // width/height first, then set the box — order matters so the size always wins.
+  // Embed the SVG watch into a fixed box (strip any existing width/height first
+  // so the box size wins). When null, leave the box empty — a PNG is composited
+  // onto the canvas at WATCH_BOX afterwards instead.
   const watchBox = watchInnerSvg
-    .replace(/\s(?:width|height)="[^"]*"/g, "")
-    .replace(/^<svg/, `<svg xmlns="http://www.w3.org/2000/svg" x="290" y="430" width="500" height="500"`);
+    ? watchInnerSvg
+        .replace(/\s(?:width|height)="[^"]*"/g, "")
+        .replace(
+          /^<svg/,
+          `<svg xmlns="http://www.w3.org/2000/svg" x="${WATCH_BOX.x}" y="${WATCH_BOX.y}" width="${WATCH_BOX.w}" height="${WATCH_BOX.h}"`,
+        )
+    : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
@@ -137,22 +146,41 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string): string {
 </svg>`;
 }
 
-async function svgToPngBlob(svg: string): Promise<Blob> {
-  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
-  try {
+function loadImageEl(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
     const img = new Image();
     img.decoding = "async";
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("svg load failed"));
-      img.src = url;
-    });
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+// Rasterise the card SVG, then composite the AI watch PNG on top (if provided).
+async function renderCardBlob(svg: string, watchPng: HTMLImageElement | null): Promise<Blob> {
+  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+  try {
+    const card = await loadImageEl(url);
+    if (!card) throw new Error("svg load failed");
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("no 2d context");
-    ctx.drawImage(img, 0, 0, W, H);
+    ctx.drawImage(card, 0, 0, W, H);
+    if (watchPng) {
+      // contain the PNG within WATCH_BOX, centred
+      const r = Math.min(WATCH_BOX.w / watchPng.width, WATCH_BOX.h / watchPng.height);
+      const w = watchPng.width * r;
+      const h = watchPng.height * r;
+      ctx.drawImage(
+        watchPng,
+        WATCH_BOX.x + (WATCH_BOX.w - w) / 2,
+        WATCH_BOX.y + (WATCH_BOX.h - h) / 2,
+        w,
+        h,
+      );
+    }
     return await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 0.95),
     );
@@ -169,8 +197,12 @@ export function captionFor(reading: Reading): string {
 
 export async function shareReading(reading: Reading, watchSvgEl: SVGSVGElement): Promise<ShareOutcome> {
   try {
-    const svg = buildCardSvg(reading, watchSvgEl.outerHTML);
-    const png = await svgToPngBlob(svg);
+    // Prefer the AI illustration when one exists; otherwise embed the SVG watch.
+    const watchPng = IMAGE_READY.has(reading.watch.id)
+      ? await loadImageEl(`/watches/${reading.watch.id}.png`)
+      : null;
+    const svg = buildCardSvg(reading, watchPng ? null : watchSvgEl.outerHTML);
+    const png = await renderCardBlob(svg, watchPng);
     const file = new File([png], `watch-energy-${reading.watch.id}.png`, { type: "image/png" });
 
     const nav = navigator as Navigator & {

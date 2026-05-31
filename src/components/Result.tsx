@@ -6,6 +6,7 @@ import { captionFor, shareReading, type ShareOutcome } from "@/lib/shareCard";
 import type { Reading } from "@/lib/types";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { CaseSwatch, DialSwatch, StrapSwatch } from "./ConfigSwatch";
+import WatchImage from "./WatchImage";
 import WatchVisual from "./WatchVisual";
 
 const IG_URL = "https://www.instagram.com/gptwatchcollector/";
@@ -154,10 +155,10 @@ function WatchAct({
         TOP {reading.rarity}% RARITY
       </p>
 
-      {/* watch */}
+      {/* watch — AI illustration if present, else generated SVG */}
       <div className="relative mt-3 watch-in">
-        <div className="shimmer rounded-full">
-          <WatchVisual watch={watch} size={244} />
+        <div className="shimmer overflow-hidden rounded-[28px]">
+          <WatchImage watch={watch} size={244} />
         </div>
       </div>
 
