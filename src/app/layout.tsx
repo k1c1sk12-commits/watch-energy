@@ -3,7 +3,11 @@ import { Fraunces, Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+// GA4 Measurement ID. Defaults to the live property in production; env var
+// overrides if set. Stays off in local dev so it doesn't pollute the data.
+const GA_ID =
+  process.env.NEXT_PUBLIC_GA_ID ??
+  (process.env.NODE_ENV === "production" ? "G-XR7J0QTT61" : undefined);
 
 const fraunces = Fraunces({
   variable: "--font-display",
