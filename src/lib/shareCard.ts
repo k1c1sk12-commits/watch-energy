@@ -49,7 +49,8 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): st
   // Recipe leads the card (the legible, shareable hook); the watch is the reveal.
   const recipeStr = `${recipe.caseText}  ·  ${recipe.dialText}  ·  ${recipe.strapText}`;
   const recipeLines = wrap(recipeStr, 26, 2);
-  const modelLines = wrap(`${watch.model}`, 22, 2);
+  const modelText = reading.name ? `${reading.name}'s ${watch.model}` : watch.model;
+  const modelLines = wrap(modelText, 22, 2);
   const sigLines = wrap(watch.signature, 40, 2);
 
   const recipeSvg = recipeLines

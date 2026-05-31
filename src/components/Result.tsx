@@ -58,7 +58,7 @@ function RecipeAct({ reading }: { reading: Reading }) {
   ];
   return (
     <section className="mx-auto flex min-h-[100svh] max-w-[400px] flex-col justify-center px-6 text-center">
-      <p className="eyebrow rise-in">Your destiny recipe</p>
+      <p className="eyebrow rise-in">{reading.name ? `${reading.name}'s destiny recipe` : "Your destiny recipe"}</p>
       <h2
         className="mt-2 font-display text-[1.6rem] font-light leading-snug text-hi rise-in"
         style={{ animationDelay: "60ms" }}
@@ -167,7 +167,7 @@ function WatchAct({
         {watch.brand}
       </p>
       <h2 className="mt-1 font-display text-[1.7rem] font-light leading-tight text-hi rise-in" style={{ animationDelay: "160ms" }}>
-        {watch.model}
+        {reading.name ? `${reading.name}'s ${watch.model}` : watch.model}
       </h2>
       {watch.reference && (
         <p className="mt-1 text-xs text-low rise-in" style={{ animationDelay: "180ms" }}>
@@ -187,6 +187,11 @@ function WatchAct({
       {/* reasoning */}
       <p className="mt-5 text-[1.02rem] leading-relaxed text-mid rise-in" style={{ animationDelay: "240ms" }}>
         {reading.reason}
+      </p>
+
+      {/* personal reading line (from the "misread" question) */}
+      <p className="mt-3 font-display text-[1.02rem] italic leading-relaxed text-gold-bright/90 rise-in" style={{ animationDelay: "260ms" }}>
+        {reading.personalLine}
       </p>
 
       {/* spec row: case / dial / strap */}

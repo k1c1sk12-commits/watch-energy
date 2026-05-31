@@ -77,10 +77,12 @@ export interface Reading {
   watch: Watch;
   baseEnergy: Energy;
   vibe: Vibe;
+  name: string; // visitor name ("" if not given)
   matchPercent: number;
   rarity: number;
   recipe: Recipe;
   reason: string;
+  personalLine: string; // the "people misread…" reading line
   traits: string[];
   seed: string;
 }

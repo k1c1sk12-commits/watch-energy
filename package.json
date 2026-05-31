@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "verify": "tsx scripts/verify-engine.ts"
+    "verify": "tsx scripts/verify-engine.ts",
+    "gen:images": "node scripts/gen-watch-images.mjs",
+    "gen:cartoon": "node scripts/cartoonify-sources.mjs"
   },
   "dependencies": {
     "next": "16.2.6",

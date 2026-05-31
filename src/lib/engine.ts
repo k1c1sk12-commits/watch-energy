@@ -80,6 +80,75 @@ export const VIBE_TARGET: Record<Vibe, Energy> = {
   GROUNDED: "TERRA",
 };
 
+// ----- Extra quiz questions -----
+// metal -> biases the CASE, mind -> the DIAL, feel -> the STRAP. misread is
+// flavour only (drives the personal reading line, no effect on the watch).
+export type QuestionKey = "metal" | "mind" | "feel" | "misread";
+
+export interface QuizOption {
+  id: string;
+  label: string;
+  hint: string;
+  energy: Energy;
+}
+
+export interface Question {
+  key: QuestionKey;
+  prompt: string;
+  options: QuizOption[];
+}
+
+export const QUESTIONS: Question[] = [
+  {
+    key: "metal",
+    prompt: "Pick the metal your soul answers to",
+    options: [
+      { id: "steel", label: "Cool steel", hint: "honest, unshakable", energy: "LUMEN" },
+      { id: "gold", label: "Warm gold", hint: "born to be seen", energy: "TERRA" },
+      { id: "titanium", label: "Light titanium", hint: "modern, unbound", energy: "VERDANT" },
+      { id: "rosegold", label: "Rose gold", hint: "quiet fire", energy: "EMBER" },
+    ],
+  },
+  {
+    key: "mind",
+    prompt: "Where does your mind drift?",
+    options: [
+      { id: "ocean", label: "The deep ocean", hint: "blue, fathomless", energy: "TIDE" },
+      { id: "valley", label: "A wild green valley", hint: "alive, growing", energy: "VERDANT" },
+      { id: "embers", label: "Embers in the dark", hint: "warm, glowing", energy: "EMBER" },
+      { id: "snow", label: "First snow at dawn", hint: "clean, bright", energy: "LUMEN" },
+    ],
+  },
+  {
+    key: "feel",
+    prompt: "Your watch should feel…",
+    options: [
+      { id: "engineered", label: "Seamless & engineered", hint: "integrated metal", energy: "LUMEN" },
+      { id: "classic", label: "Classic & warm", hint: "fine leather", energy: "TERRA" },
+      { id: "deep", label: "Quiet & deep", hint: "dark, understated", energy: "TIDE" },
+      { id: "ready", label: "Ready for anything", hint: "sporty, free", energy: "VERDANT" },
+    ],
+  },
+  {
+    key: "misread",
+    prompt: "What do people misread in you?",
+    options: [
+      { id: "quiet", label: "“I'm quieter than my mind”", hint: "", energy: "TIDE" },
+      { id: "soft", label: "“I'm softer than I look”", hint: "", energy: "EMBER" },
+      { id: "cold", label: "“All focus, but I feel a lot”", hint: "", energy: "LUMEN" },
+      { id: "restless", label: "“Restless, but I see far”", hint: "", energy: "VERDANT" },
+    ],
+  },
+];
+
+const MISREAD_LINE: Record<Energy, string> = {
+  TIDE: "People read your calm as distance — really, it's depth.",
+  EMBER: "People mistake your warmth for show — it's the real thing.",
+  LUMEN: "People take your focus for coldness — it's just clarity.",
+  VERDANT: "People misread your drive as restlessness — it's vision.",
+  TERRA: "People see your steadiness as simple — it's quiet strength.",
+};
+
 // The second input is an enduring NATURE (who you are), not a passing mood.
 // Each maps 1:1 to one of the five energies — see VIBE_TARGET.
 export const VIBE_META: Record<Vibe, { label: string; hint: string }> = {
@@ -142,42 +211,54 @@ export const STRAP_ENERGY: Record<StrapType, Energy> = {
   blueTextile: "TIDE",
 };
 
-// Score a watch against the user's base energy + vibe across all THREE slots.
-// Case dominates, dial second, strap lightest (the most swappable component in
-// real life, so it tilts ties rather than driving picks). Owned pieces — the
-// real collection — get a gentle nudge so the "this is actually his" payoff lands.
-function scoreWatch(w: Watch, base: Energy, vibe: Vibe): number {
-  const target = VIBE_TARGET[vibe];
-  const baseScore =
-    rel(w.caseEnergy, base) * 1.0 +
-    rel(w.dialEnergy, base) * 0.8 +
-    rel(w.strapEnergy, base) * 0.5;
-  const vibeScore =
-    rel(w.caseEnergy, target) * 0.7 +
-    rel(w.dialEnergy, target) * 0.7 +
-    rel(w.strapEnergy, target) * 0.4;
-  const ownedBonus = w.owned ? 0.25 : 0;
-  return baseScore + vibeScore + ownedBonus;
+// Per-slot energy bias from the quiz answers (metal -> case, mind -> dial,
+// feel -> strap). The chosen "nature" sets the overall vibe target.
+export interface Bias {
+  metal: Energy;
+  mind: Energy;
+  feel: Energy;
 }
 
-const SCORE_MIN = 4.1; // all rel = 1, unowned
-const SCORE_MAX = 16.65; // all rel = 4, owned
+// Score a watch across all THREE slots, blending: the birth-date base energy,
+// the chosen nature (vibe target), and the per-slot quiz biases. Case dominates,
+// dial second, strap lightest. Owned pieces get a gentle nudge.
+function scoreWatch(w: Watch, base: Energy, target: Energy, bias: Bias): number {
+  const caseS =
+    rel(w.caseEnergy, base) * 1.0 +
+    rel(w.caseEnergy, target) * 0.7 +
+    rel(w.caseEnergy, bias.metal) * 0.9;
+  const dialS =
+    rel(w.dialEnergy, base) * 0.8 +
+    rel(w.dialEnergy, target) * 0.7 +
+    rel(w.dialEnergy, bias.mind) * 0.8;
+  const strapS =
+    rel(w.strapEnergy, base) * 0.5 +
+    rel(w.strapEnergy, target) * 0.4 +
+    rel(w.strapEnergy, bias.feel) * 0.6;
+  return caseS + dialS + strapS + (w.owned ? 0.25 : 0);
+}
 
-// Width of the "still a great match" band below the top score. Candidates inside
-// it are picked from deterministically by the full birth date, so the whole
-// collection stays reachable (the "unlock the set" mechanic) while every result
-// is a genuinely close match.
-const BAND = 1.85;
+const SCORE_MIN = 6.4; // all rel = 1, unowned
+const SCORE_MAX = 25.85; // all rel = 4, owned
 
-function pickWatch(pool: Watch[], base: Energy, vibe: Vibe, seed: string): Watch {
-  const scored = pool.map((w) => ({ w, s: scoreWatch(w, base, vibe) }));
+// Width of the "still a great match" band below the top score (~15% of range).
+const BAND = 2.9;
+
+function pickWatch(
+  pool: Watch[],
+  base: Energy,
+  target: Energy,
+  bias: Bias,
+  seed: string,
+): Watch {
+  const scored = pool.map((w) => ({ w, s: scoreWatch(w, base, target, bias) }));
   const maxS = Math.max(...scored.map((x) => x.s));
   const candidates = scored
     .filter((x) => x.s >= maxS - BAND)
     .sort((a, b) => b.s - a.s || (a.w.id < b.w.id ? -1 : 1))
     .map((x) => x.w);
   if (candidates.length === 1) return candidates[0];
-  const h = hashStr(seed + "|" + vibe);
+  const h = hashStr(seed + "|" + bias.metal + bias.mind + bias.feel);
   return candidates[h % candidates.length];
 }
 
@@ -330,20 +411,34 @@ export function parseDOB(input: string): ParseResult {
   return { ok: true, dob: { y, m: mo, d } };
 }
 
-export function getReading(dob: DOB, vibe: Vibe, pool: Watch[] = WATCHES): Reading {
-  const seed = `${dob.y}-${String(dob.m).padStart(2, "0")}-${String(dob.d).padStart(2, "0")}`;
+export interface Answers {
+  dob: DOB;
+  nature: Vibe;
+  bias: Bias; // metal -> case, mind -> dial, feel -> strap
+  misread: Energy;
+  name?: string;
+}
+
+export function getReading(a: Answers, pool: Watch[] = WATCHES): Reading {
+  const { dob, nature } = a;
+  const seed =
+    `${dob.y}-${String(dob.m).padStart(2, "0")}-${String(dob.d).padStart(2, "0")}` +
+    `|${a.bias.metal}${a.bias.mind}${a.bias.feel}`;
   const base = baseEnergy(dob.y, dob.m, dob.d);
-  const watch = pickWatch(pool, base, vibe, seed);
-  const score = scoreWatch(watch, base, vibe);
+  const target = VIBE_TARGET[nature];
+  const watch = pickWatch(pool, base, target, a.bias, seed);
+  const score = scoreWatch(watch, base, target, a.bias);
   return {
     watch,
     baseEnergy: base,
-    vibe,
-    matchPercent: matchPercent(score, seed, vibe),
+    vibe: nature,
+    name: (a.name ?? "").trim(),
+    matchPercent: matchPercent(score, seed, nature),
     rarity: watch.rarity,
     recipe: buildRecipe(watch),
-    reason: buildReason(watch, base, vibe, seed),
-    traits: buildTraits(watch, base, vibe, seed),
+    reason: buildReason(watch, base, nature, seed),
+    personalLine: MISREAD_LINE[a.misread],
+    traits: buildTraits(watch, base, nature, seed),
     seed,
   };
 }
@@ -369,8 +464,11 @@ export function assertPoolBalance(pool: Watch[] = WATCHES): string[] {
 export function distinctPickCount(pool: Watch[] = WATCHES): number {
   const picks = new Set<string>();
   for (const base of ENERGIES) {
-    for (const vibe of Object.keys(VIBE_TARGET) as Vibe[]) {
-      picks.add(pickWatch(pool, base, vibe, "2000-01-01").id);
+    for (const e of ENERGIES) {
+      const bias: Bias = { metal: e, mind: e, feel: e };
+      for (const vibe of Object.keys(VIBE_TARGET) as Vibe[]) {
+        picks.add(pickWatch(pool, base, VIBE_TARGET[vibe], bias, "2000-01-01").id);
+      }
     }
   }
   return picks.size;

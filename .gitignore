@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# raw source photos for cartoon-ifying — never commit copyrighted originals
+/public/watches/_source/
