@@ -24,6 +24,7 @@ export type StrapType =
   | "brownLeather"
   | "blackLeather"
   | "blueLeather"
+  | "whiteLeather"
   | "greenTextile" // NATO / fabric
   | "blueRubber"
   | "blackRubber"
