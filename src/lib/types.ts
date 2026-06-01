@@ -64,17 +64,10 @@ export interface Watch {
   complication: Complication;
 }
 
-// ----- The energy "recipe": the ideal configuration derived from the user -----
-export interface Recipe {
-  caseEnergy: Energy;
-  dialEnergy: Energy;
-  strapEnergy: Energy;
-  caseText: string;
-  dialText: string;
-  strapText: string;
-}
-
 // ----- A computed reading -----
+// Language-neutral: holds only the picked watch + the deterministic inputs.
+// All human-facing copy (reason, traits, recipe labels, the personal line) is
+// rendered from this per-language at display time — see `copy.ts`.
 export interface Reading {
   watch: Watch;
   baseEnergy: Energy;
@@ -82,9 +75,6 @@ export interface Reading {
   name: string; // visitor name ("" if not given)
   matchPercent: number;
   rarity: number;
-  recipe: Recipe;
-  reason: string;
-  personalLine: string; // the "people misread…" reading line
-  traits: string[];
+  misread: Energy; // drives the "people misread…" personal line
   seed: string;
 }

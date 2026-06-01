@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const STEPS = [
-  "Reading your nature…",
-  "Tracing the watch written for you…",
-  "Your destiny watch is near…",
-];
+import { UI } from "@/lib/copy";
+import { useLang } from "@/lib/i18n";
 
 export default function Reading({ durationMs }: { durationMs: number }) {
+  const { lang } = useLang();
+  const steps = UI[lang].readingSteps;
   const [step, setStep] = useState(0);
   useEffect(() => {
-    const each = durationMs / STEPS.length;
-    const id = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), each);
+    const each = durationMs / steps.length;
+    const id = setInterval(() => setStep((s) => Math.min(s + 1, steps.length - 1)), each);
     return () => clearInterval(id);
-  }, [durationMs]);
+  }, [durationMs, steps.length]);
 
   return (
     <section className="flex min-h-[100svh] flex-col items-center justify-center px-6 text-center">
@@ -38,7 +36,7 @@ export default function Reading({ durationMs }: { durationMs: number }) {
       </div>
 
       <p key={step} className="mt-8 text-sm tracking-wide text-mid" style={{ animation: "status-fade 1s ease both" }}>
-        {STEPS[step]}
+        {steps[step]}
       </p>
     </section>
   );

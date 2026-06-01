@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { QUESTIONS, VIBE_META, type QuestionKey } from "@/lib/engine";
+import { QUESTIONS, type QuestionKey } from "@/lib/engine";
+import { Q_OPTIONS, Q_PROMPTS, UI, vibeHint, vibeLabel, type Lang } from "@/lib/copy";
+import { useLang } from "@/lib/i18n";
 import { VIBES, type Energy, type Vibe } from "@/lib/types";
 
 const TODAY = new Date();
@@ -9,8 +11,9 @@ const MAX_DATE = `${TODAY.getFullYear()}-${String(TODAY.getMonth() + 1).padStart
   TODAY.getDate(),
 ).padStart(2, "0")}`;
 
-function formatNice(iso: string): string {
+function formatNice(iso: string, lang: Lang): string {
   const [y, m, d] = iso.split("-").map(Number);
+  if (lang === "zh") return `${y}年${m}月${d}日`;
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return `${d} ${months[m - 1]} ${y}`;
 }
@@ -85,6 +88,8 @@ export default function InputScreen({
   initial: Partial<RevealData>;
   onReveal: (d: RevealData) => void;
 }) {
+  const { lang } = useLang();
+  const t = UI[lang];
   const [name, setName] = useState(initial.name ?? "");
   const [iso, setIso] = useState(initial.iso ?? "1987-11-01");
   const [nature, setNature] = useState<Vibe | null>(initial.nature ?? null);
@@ -110,19 +115,19 @@ export default function InputScreen({
 
   return (
     <section className="mx-auto flex min-h-[100svh] max-w-[420px] flex-col justify-center px-5 pb-32 pt-12">
-      <p className="eyebrow mb-2 rise-in">Your destiny watch · the reading</p>
+      <p className="eyebrow mb-2 rise-in">{t.inputEyebrow}</p>
       <h2
         className="mb-7 font-display text-[1.7rem] font-light leading-tight text-hi rise-in"
         style={{ animationDelay: "40ms" }}
       >
-        A few questions, then your watch.
+        {t.inputTitle}
       </h2>
 
       <div className="flex flex-col gap-7">
         {/* name */}
         <div className="rise-in" style={{ animationDelay: "90ms" }}>
           <label htmlFor="name" className="mb-2 block text-sm font-medium text-mid">
-            What should we call you?
+            {t.nameLabel}
           </label>
           <input
             id="name"
@@ -130,7 +135,7 @@ export default function InputScreen({
             value={name}
             maxLength={24}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your name (optional)"
+            placeholder={t.namePlaceholder}
             className="w-full rounded-[var(--radius-md)] border border-border bg-overlay px-5 py-4 text-hi placeholder:text-low outline-none transition-colors focus:border-border-gold"
           />
         </div>
@@ -138,10 +143,10 @@ export default function InputScreen({
         {/* birth date */}
         <div className="rise-in" style={{ animationDelay: "145ms" }}>
           <label htmlFor="dob" className="mb-2 block text-sm font-medium text-mid">
-            When were you born?
+            {t.dobLabel}
           </label>
           <div className="relative flex w-full items-center justify-between rounded-[var(--radius-md)] border border-border bg-overlay px-5 py-4 text-left transition-colors hover:border-border-gold focus-within:border-border-gold">
-            <span className={iso ? "text-hi" : "text-low"}>{iso ? formatNice(iso) : "Select your date"}</span>
+            <span className={iso ? "text-hi" : "text-low"}>{iso ? formatNice(iso, lang) : t.dobPlaceholder}</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gold" aria-hidden>
               <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
               <path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -162,7 +167,7 @@ export default function InputScreen({
                 }
               }}
               className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="Birth date"
+              aria-label={t.dobAria}
             />
           </div>
         </div>
@@ -171,9 +176,9 @@ export default function InputScreen({
         <div className="rise-in" style={{ animationDelay: "200ms" }}>
           <ChipGroup
             labelId="nature-label"
-            prompt="What is your inner nature?"
-            sub="The one that's true no matter the day."
-            options={VIBES.map((v) => ({ id: v, label: VIBE_META[v].label, hint: VIBE_META[v].hint }))}
+            prompt={t.naturePrompt}
+            sub={t.natureSub}
+            options={VIBES.map((v) => ({ id: v, label: vibeLabel(v, lang), hint: vibeHint(v, lang) }))}
             selected={nature}
             onSelect={(id) => setNature(id as Vibe)}
           />
@@ -184,8 +189,12 @@ export default function InputScreen({
           <div key={q.key} className="rise-in" style={{ animationDelay: `${255 + i * 55}ms` }}>
             <ChipGroup
               labelId={`q-${q.key}`}
-              prompt={q.prompt}
-              options={q.options.map((o) => ({ id: o.id, label: o.label, hint: o.hint }))}
+              prompt={Q_PROMPTS[lang][q.key]}
+              options={q.options.map((o) => ({
+                id: o.id,
+                label: Q_OPTIONS[lang][o.id].label,
+                hint: Q_OPTIONS[lang][o.id].hint,
+              }))}
               selected={selectedId(q)}
               onSelect={(id) => selectAnswer(q, id)}
             />
@@ -206,7 +215,7 @@ export default function InputScreen({
                 : "cursor-not-allowed bg-overlay text-low",
             ].join(" ")}
           >
-            {ready ? "Reveal my destiny watch" : "Answer all to reveal"}
+            {ready ? t.ctaReady : t.ctaNotReady}
           </button>
         </div>
       </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
+import { UI } from "@/lib/copy";
+import { useLang } from "@/lib/i18n";
 
 // Behold.so JSON feed URL (https://feeds.behold.so/XXXXXXXX). Env overrides the
 // live default; empty -> the component renders nothing.
@@ -33,6 +35,7 @@ function pickThumb(p: RawPost): string {
 }
 
 export default function IgPreview() {
+  const { lang } = useLang();
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function IgPreview() {
 
   return (
     <div className="mt-4">
-      <p className="mb-2 text-xs text-mid">Latest from @gptwatchcollector</p>
+      <p className="mb-2 text-xs text-mid">{UI[lang].igLatest}</p>
       <div className="flex gap-2">
         {posts.map((p) => (
           <a

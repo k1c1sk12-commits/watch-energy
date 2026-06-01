@@ -2,12 +2,20 @@ import {
   ENERGIES,
   type Energy,
   type Reading,
-  type Recipe,
   type StrapType,
   type Vibe,
   type Watch,
 } from "./types";
 import { WATCHES } from "./watches";
+
+// ---------------------------------------------------------------------------
+// This file owns the language-NEUTRAL engine: the energy cycles, the
+// deterministic watch selection, scoring and match%. All human-facing copy
+// (energy names, vibe labels, question text, the reasoning sentence, the
+// recipe/strap labels) lives in `copy.ts` and is rendered per-language at
+// display time, so the language toggle updates everything live without ever
+// changing which watch was picked.
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // 1. Energy cycles (internal — never surfaced in the UI as "elements")
@@ -41,37 +49,6 @@ const CONTROLLED_BY: Record<Energy, Energy> = {
   VERDANT: "LUMEN",
 };
 
-export const ENERGY_META: Record<
-  Energy,
-  { name: string; tagline: string; keywords: string[] }
-> = {
-  VERDANT: {
-    name: "Verdant",
-    tagline: "Growth, momentum, fresh ambition.",
-    keywords: ["growth", "vision", "renewal", "drive"],
-  },
-  EMBER: {
-    name: "Ember",
-    tagline: "Passion, presence, magnetic warmth.",
-    keywords: ["passion", "charisma", "spark", "radiance"],
-  },
-  TERRA: {
-    name: "Terra",
-    tagline: "Stability, trust, grounded calm.",
-    keywords: ["stability", "trust", "patience", "foundation"],
-  },
-  LUMEN: {
-    name: "Lumen",
-    tagline: "Clarity, precision, sharp focus.",
-    keywords: ["clarity", "precision", "focus", "structure"],
-  },
-  TIDE: {
-    name: "Tide",
-    tagline: "Depth, intuition, fluid calm.",
-    keywords: ["depth", "intuition", "flow", "stillness"],
-  },
-};
-
 export const VIBE_TARGET: Record<Vibe, Energy> = {
   CALM: "TIDE",
   BOLD: "EMBER",
@@ -80,84 +57,60 @@ export const VIBE_TARGET: Record<Vibe, Energy> = {
   GROUNDED: "TERRA",
 };
 
-// ----- Extra quiz questions -----
+// ----- Quiz structure -----
 // metal -> biases the CASE, mind -> the DIAL, feel -> the STRAP. misread is
 // flavour only (drives the personal reading line, no effect on the watch).
+// The option LABELS / HINTS / PROMPTS live in copy.ts (keyed by these ids).
 export type QuestionKey = "metal" | "mind" | "feel" | "misread";
 
 export interface QuizOption {
   id: string;
-  label: string;
-  hint: string;
   energy: Energy;
 }
 
 export interface Question {
   key: QuestionKey;
-  prompt: string;
   options: QuizOption[];
 }
 
 export const QUESTIONS: Question[] = [
   {
     key: "metal",
-    prompt: "Pick the metal your soul answers to",
     options: [
-      { id: "steel", label: "Cool steel", hint: "honest, unshakable", energy: "LUMEN" },
-      { id: "gold", label: "Warm gold", hint: "born to be seen", energy: "TERRA" },
-      { id: "titanium", label: "Light titanium", hint: "modern, unbound", energy: "VERDANT" },
-      { id: "rosegold", label: "Rose gold", hint: "quiet fire", energy: "EMBER" },
+      { id: "steel", energy: "LUMEN" },
+      { id: "gold", energy: "TERRA" },
+      { id: "titanium", energy: "VERDANT" },
+      { id: "rosegold", energy: "EMBER" },
     ],
   },
   {
     key: "mind",
-    prompt: "Where does your mind drift?",
     options: [
-      { id: "ocean", label: "The deep ocean", hint: "blue, fathomless", energy: "TIDE" },
-      { id: "valley", label: "A wild green valley", hint: "alive, growing", energy: "VERDANT" },
-      { id: "embers", label: "Embers in the dark", hint: "warm, glowing", energy: "EMBER" },
-      { id: "snow", label: "First snow at dawn", hint: "clean, bright", energy: "LUMEN" },
+      { id: "ocean", energy: "TIDE" },
+      { id: "valley", energy: "VERDANT" },
+      { id: "embers", energy: "EMBER" },
+      { id: "snow", energy: "LUMEN" },
     ],
   },
   {
     key: "feel",
-    prompt: "Your watch should feel…",
     options: [
-      { id: "engineered", label: "Seamless & engineered", hint: "integrated metal", energy: "LUMEN" },
-      { id: "classic", label: "Classic & warm", hint: "fine leather", energy: "TERRA" },
-      { id: "deep", label: "Quiet & deep", hint: "dark, understated", energy: "TIDE" },
-      { id: "ready", label: "Ready for anything", hint: "sporty, free", energy: "VERDANT" },
+      { id: "engineered", energy: "LUMEN" },
+      { id: "classic", energy: "TERRA" },
+      { id: "deep", energy: "TIDE" },
+      { id: "ready", energy: "VERDANT" },
     ],
   },
   {
     key: "misread",
-    prompt: "What do people misread in you?",
     options: [
-      { id: "quiet", label: "“I'm quieter than my mind”", hint: "", energy: "TIDE" },
-      { id: "soft", label: "“I'm softer than I look”", hint: "", energy: "EMBER" },
-      { id: "cold", label: "“All focus, but I feel a lot”", hint: "", energy: "LUMEN" },
-      { id: "restless", label: "“Restless, but I see far”", hint: "", energy: "VERDANT" },
+      { id: "quiet", energy: "TIDE" },
+      { id: "soft", energy: "EMBER" },
+      { id: "cold", energy: "LUMEN" },
+      { id: "restless", energy: "VERDANT" },
     ],
   },
 ];
-
-const MISREAD_LINE: Record<Energy, string> = {
-  TIDE: "People read your calm as distance — really, it's depth.",
-  EMBER: "People mistake your warmth for show — it's the real thing.",
-  LUMEN: "People take your focus for coldness — it's just clarity.",
-  VERDANT: "People misread your drive as restlessness — it's vision.",
-  TERRA: "People see your steadiness as simple — it's quiet strength.",
-};
-
-// The second input is an enduring NATURE (who you are), not a passing mood.
-// Each maps 1:1 to one of the five energies — see VIBE_TARGET.
-export const VIBE_META: Record<Vibe, { label: string; hint: string }> = {
-  CALM: { label: "The Deep", hint: "calm surface, vast underneath" }, // Tide
-  BOLD: { label: "The Flame", hint: "passion, presence, felt at once" }, // Ember
-  FOCUSED: { label: "The Clear", hint: "sharp, lucid, you see what others miss" }, // Lumen
-  MAGNETIC: { label: "The Striver", hint: "always growing, reaching for next" }, // Verdant
-  GROUNDED: { label: "The Anchor", hint: "steady, grounded, unshakable" }, // Terra
-};
 
 // ---------------------------------------------------------------------------
 // 2. Birth date -> base energy (deterministic, no lunar deps)
@@ -173,7 +126,7 @@ export function baseEnergy(year: number, month: number, day: number): Energy {
 // ---------------------------------------------------------------------------
 // 3. Stable string hash (FNV-1a) for deterministic, seedable choices
 // ---------------------------------------------------------------------------
-function hashStr(s: string): number {
+export function hashStr(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -182,7 +135,9 @@ function hashStr(s: string): number {
   return h >>> 0;
 }
 
-function pick<T>(arr: T[], seed: string, salt: string): T {
+// Deterministically pick from an array given a seed + salt. Used by the
+// per-language copy generators in copy.ts so both languages stay stable.
+export function pick<T>(arr: T[], seed: string, salt: string): T {
   return arr[hashStr(seed + salt) % arr.length];
 }
 
@@ -271,126 +226,8 @@ function matchPercent(score: number, seed: string, vibe: Vibe): number {
   return Math.min(99, Math.round(base + jitter));
 }
 
-// Human label for a concrete strap type (used in chips, the recipe, the card).
-export const STRAP_CHIP: Record<StrapType, string> = {
-  integratedSteelBracelet: "Integrated bracelet",
-  steelBracelet: "Steel bracelet",
-  brownLeather: "Brown leather",
-  blackLeather: "Black leather",
-  blueLeather: "Blue leather",
-  whiteLeather: "White leather",
-  greyLeather: "Grey leather",
-  greenTextile: "Green textile",
-  blueRubber: "Blue rubber",
-  blackRubber: "Black rubber",
-  blueTextile: "Blue textile",
-};
-
-// The "recipe" is the destiny watch's OWN configuration, surfaced BEFORE its
-// name. It always matches the watch (no aspiration gap) — the drama is simply
-// hiding the brand until after the configuration has landed.
-function buildRecipe(w: Watch): Recipe {
-  const clean = (s: string) => s.replace(/\s*\([^)]*\)/g, "").trim();
-  return {
-    caseEnergy: w.caseEnergy,
-    dialEnergy: w.dialEnergy,
-    strapEnergy: w.strapEnergy,
-    caseText: clean(w.caseMaterial),
-    dialText: clean(w.dialColor),
-    strapText: STRAP_CHIP[w.strapType],
-  };
-}
-
 // ---------------------------------------------------------------------------
-// 5. Reasoning copy generator
-// ---------------------------------------------------------------------------
-const ENERGY_ADJ: Record<Energy, string[]> = {
-  VERDANT: ["rising", "expansive", "forward-leaning", "fresh"],
-  EMBER: ["radiant", "magnetic", "spirited", "bold"],
-  TERRA: ["grounded", "steady", "assured", "enduring"],
-  LUMEN: ["precise", "lucid", "sharp", "composed"],
-  TIDE: ["deep", "fluid", "intuitive", "serene"],
-};
-const VERB_OPEN = ["leans", "gravitates", "draws", "points"];
-const CASE_VERB = ["channels", "carries", "anchors", "holds"];
-const DIAL_VERB = ["amplifies", "reflects", "echoes", "releases"];
-const DIAL_NOUN = ["light", "tone", "character", "undertone"];
-const CLOSE_VERB = ["balances", "grounds", "amplifies", "sharpens", "channels"];
-const CLOSE_NOUN: Record<Vibe, string[]> = {
-  CALM: ["quiet confidence", "a settled mind", "effortless poise"],
-  BOLD: ["your presence", "a confident statement", "standout energy"],
-  FOCUSED: ["clear intent", "sharp focus", "decisive clarity"],
-  MAGNETIC: ["a natural pull", "magnetic ease", "rising charisma"],
-  GROUNDED: ["a steady centre", "quiet assurance", "rooted calm"],
-};
-const MATERIAL_PHRASE: Record<string, string> = {
-  "stainless steel": "cool steel case",
-  oystersteel: "cool steel case",
-  "white gold": "bright white-gold case",
-  "rose gold": "warm rose-gold case",
-  "yellow gold": "rich yellow-gold case",
-  titanium: "light titanium case",
-  platinum: "dense platinum case",
-  "black ceramic": "deep ceramic case",
-  "steel & black ceramic": "steel-and-ceramic case",
-};
-
-function materialPhrase(m: string): string {
-  return MATERIAL_PHRASE[m.toLowerCase()] ?? `${m.toLowerCase()} case`;
-}
-
-function article(word: string): string {
-  return /^[aeiou]/i.test(word) ? "an" : "a";
-}
-
-function buildReason(w: Watch, base: Energy, vibe: Vibe, seed: string): string {
-  const s = seed + "|" + vibe + "|" + w.id;
-  // Strip parentheticals ("Silver (argenté)" -> "silver") so the colour reads
-  // cleanly inside a flowing sentence; the full label still shows in the chip.
-  const dialClean = w.dialColor.toLowerCase().replace(/\s*\([^)]*\)/g, "").trim();
-  const dial = `${dialClean} dial`;
-  const dialAdj = pick(ENERGY_ADJ[w.dialEnergy], s, "da");
-  const s1 = `Your ${pick(ENERGY_ADJ[base], s, "ba")} energy ${pick(
-    VERB_OPEN,
-    s,
-    "vo",
-  )} toward the ${w.brand} ${w.model}.`;
-  const s2 = `Its ${materialPhrase(w.caseMaterial)} ${pick(CASE_VERB, s, "cv")} ${pick(
-    ENERGY_ADJ[w.caseEnergy],
-    s,
-    "ca",
-  )} energy, while the ${dial} ${pick(DIAL_VERB, s, "dv")} ${article(dialAdj)} ${dialAdj} ${pick(
-    DIAL_NOUN,
-    s,
-    "dn",
-  )}.`;
-  const s3 = `For ${VIBE_META[vibe].label}, this piece ${pick(CLOSE_VERB, s, "cl")} ${pick(
-    CLOSE_NOUN[vibe],
-    s,
-    "cn",
-  )}.`;
-  return `${s1} ${s2} ${s3}`;
-}
-
-function buildTraits(w: Watch, base: Energy, vibe: Vibe, seed: string): string[] {
-  const s = seed + "|t|" + w.id;
-  const a = pick(ENERGY_ADJ[base], s, "t1");
-  const b = pick(ENERGY_ADJ[w.dialEnergy], s, "t2");
-  const c = VIBE_META_KEYWORD[vibe];
-  const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
-  return [cap(a), cap(b), cap(c)];
-}
-
-const VIBE_META_KEYWORD: Record<Vibe, string> = {
-  CALM: "serene",
-  BOLD: "expressive",
-  FOCUSED: "precise",
-  MAGNETIC: "magnetic",
-  GROUNDED: "grounded",
-};
-
-// ---------------------------------------------------------------------------
-// 6. Public facade
+// 5. Public facade
 // ---------------------------------------------------------------------------
 export interface DOB {
   y: number;
@@ -439,16 +276,13 @@ export function getReading(a: Answers, pool: Watch[] = WATCHES): Reading {
     name: (a.name ?? "").trim(),
     matchPercent: matchPercent(score, seed, nature),
     rarity: watch.rarity,
-    recipe: buildRecipe(watch),
-    reason: buildReason(watch, base, nature, seed),
-    personalLine: MISREAD_LINE[a.misread],
-    traits: buildTraits(watch, base, nature, seed),
+    misread: a.misread,
     seed,
   };
 }
 
 // ---------------------------------------------------------------------------
-// 7. Integrity self-tests (run in dev only; never throws in production runtime)
+// 6. Integrity self-tests (run in dev only; never throws in production runtime)
 // ---------------------------------------------------------------------------
 export function assertPoolBalance(pool: Watch[] = WATCHES): string[] {
   const errors: string[] = [];

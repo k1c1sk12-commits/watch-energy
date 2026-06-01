@@ -1,4 +1,5 @@
 import { assertPoolBalance, distinctPickCount, getReading, parseDOB, type Answers } from "../src/lib/engine";
+import { personalLineText, reasonText, recipeText } from "../src/lib/copy";
 import { WATCHES } from "../src/lib/watches";
 import { ENERGIES, VIBES, type Energy, type Vibe } from "../src/lib/types";
 
@@ -31,7 +32,8 @@ const a = getReading(mk({ y: 1990, m: 5, d: 12 }, "BOLD", "EMBER"));
 const b = getReading(mk({ y: 1990, m: 5, d: 12 }, "BOLD", "EMBER"));
 check("deterministic (same input -> same watch)", a.watch.id === b.watch.id, a.watch.id);
 check("match% in 80-99", a.matchPercent >= 80 && a.matchPercent <= 99, String(a.matchPercent));
-check("personal line present", a.personalLine.length > 0);
+check("personal line present (en)", personalLineText(a, "en").length > 0);
+check("personal line present (zh)", personalLineText(a, "zh").length > 0);
 
 // Validation
 check("rejects Feb 30", parseDOB("1990-02-30").ok === false);
@@ -76,10 +78,13 @@ for (const [dob, v, e] of [
   [{ y: 2000, m: 1, d: 1 }, "FOCUSED", "LUMEN"],
 ] as const) {
   const r = getReading({ ...mk(dob, v, e), name: "Kenson" });
-  console.log(`\n  [${v}/${e}] recipe: ${r.recipe.caseText} · ${r.recipe.dialText} · ${r.recipe.strapText}`);
-  console.log(`  -> ${r.name}'s ${r.watch.model} — ${r.matchPercent}% · TOP ${r.rarity}%`);
-  console.log(`  ${r.reason}`);
-  console.log(`  ${r.personalLine}`);
+  for (const lang of ["en", "zh"] as const) {
+    const rc = recipeText(r.watch, lang);
+    console.log(`\n  [${v}/${e}] (${lang}) recipe: ${rc.caseText} · ${rc.dialText} · ${rc.strapText}`);
+    console.log(`  -> ${r.name}'s ${r.watch.model} — ${r.matchPercent}% · TOP ${r.rarity}%`);
+    console.log(`  ${reasonText(r, lang)}`);
+    console.log(`  ${personalLineText(r, lang)}`);
+  }
 }
 
 console.log(failed ? "\n❌ SOME CHECKS FAILED" : "\n✅ ALL CHECKS PASSED");

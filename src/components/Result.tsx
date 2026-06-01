@@ -2,8 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
-import { ENERGY_META, VIBE_META } from "@/lib/engine";
-import { captionFor, shareReading, type ShareOutcome } from "@/lib/shareCard";
+import {
+  UI,
+  captionFor,
+  dialText,
+  energyName,
+  energyTagline,
+  factText,
+  materialText,
+  personalLineText,
+  reasonText,
+  recipeText,
+  signatureText,
+  traitList,
+  vibeLabel,
+} from "@/lib/copy";
+import { useLang } from "@/lib/i18n";
+import { shareReading, type ShareOutcome } from "@/lib/shareCard";
 import type { Reading } from "@/lib/types";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { CaseSwatch, DialSwatch, StrapSwatch } from "./ConfigSwatch";
@@ -51,25 +66,28 @@ export default function Result({ reading, onRetry }: { reading: Reading; onRetry
 // Act 1 — the energy recipe builds in, case -> dial -> strap
 // ---------------------------------------------------------------------------
 function RecipeAct({ reading }: { reading: Reading }) {
-  const { recipe } = reading;
-  const energy = ENERGY_META[reading.baseEnergy];
+  const { lang } = useLang();
+  const t = UI[lang];
+  const recipe = recipeText(reading.watch, lang);
   const rows = [
-    { key: "Case", value: recipe.caseText, el: <CaseSwatch metal={reading.watch.metal} /> },
-    { key: "Dial", value: recipe.dialText, el: <DialSwatch hex={reading.watch.dialHex} /> },
-    { key: "Strap", value: recipe.strapText, el: <StrapSwatch strap={reading.watch.strapType} /> },
+    { key: t.caseLabel, value: recipe.caseText, el: <CaseSwatch metal={reading.watch.metal} /> },
+    { key: t.dialLabel, value: recipe.dialText, el: <DialSwatch hex={reading.watch.dialHex} /> },
+    { key: t.strapLabel, value: recipe.strapText, el: <StrapSwatch strap={reading.watch.strapType} /> },
   ];
   return (
     <section className="mx-auto flex min-h-[100svh] max-w-[400px] flex-col justify-center px-6 text-center">
-      <p className="eyebrow rise-in">{reading.name ? `${reading.name}'s destiny recipe` : "Your destiny recipe"}</p>
+      <p className="eyebrow rise-in">
+        {reading.name ? t.recipeEyebrowOwn(reading.name) : t.recipeEyebrow}
+      </p>
       <h2
         className="mt-2 font-display text-[1.6rem] font-light leading-snug text-hi rise-in"
         style={{ animationDelay: "60ms" }}
       >
-        <span className="italic text-gold-bright">{energy.name}</span> energy ·{" "}
-        {VIBE_META[reading.vibe].label}
+        <span className="italic text-gold-bright">{energyName(reading.baseEnergy, lang)}</span>
+        {t.energySuffix} · {vibeLabel(reading.vibe, lang)}
       </h2>
       <p className="mt-2 text-sm text-mid rise-in" style={{ animationDelay: "120ms" }}>
-        It calls for a watch built like this.
+        {t.recipeCalls}
       </p>
 
       <div className="mt-8 flex flex-col gap-3">
@@ -89,7 +107,7 @@ function RecipeAct({ reading }: { reading: Reading }) {
       </div>
 
       <p className="mt-7 text-xs tracking-wide text-low rise-in" style={{ animationDelay: "1000ms" }}>
-        Finding the watch that wears it…
+        {t.findingWatch}
       </p>
     </section>
   );
@@ -107,18 +125,20 @@ function WatchAct({
   onRetry: () => void;
   reduced: boolean;
 }) {
+  const { lang } = useLang();
+  const t = UI[lang];
   const pct = useCountUp(reading.matchPercent, 1100, !reduced);
   const captureRef = useRef<SVGSVGElement>(null);
   const [shareState, setShareState] = useState<"idle" | "working" | ShareOutcome>("idle");
   const [copied, setCopied] = useState(false);
   const [why, setWhy] = useState(false);
-  const { watch, recipe } = reading;
-  const energy = ENERGY_META[reading.baseEnergy];
+  const { watch } = reading;
+  const recipe = recipeText(watch, lang);
 
   async function handleShare() {
     if (!captureRef.current) return;
     setShareState("working");
-    const outcome = await shareReading(reading, captureRef.current);
+    const outcome = await shareReading(reading, captureRef.current, lang);
     setShareState(outcome);
     track("save_card", { outcome, watch_id: watch.id });
     if (outcome !== "error") setTimeout(() => setShareState("idle"), 2600);
@@ -126,7 +146,7 @@ function WatchAct({
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(captionFor(reading));
+      await navigator.clipboard.writeText(captionFor(reading, lang));
       setCopied(true);
       track("copy_caption", { watch_id: watch.id });
       setTimeout(() => setCopied(false), 2000);
@@ -149,14 +169,14 @@ function WatchAct({
 
       {/* match badge */}
       <p className="eyebrow mt-5 rise-in" style={{ animationDelay: "40ms" }}>
-        Your destiny watch
+        {t.destinyWatch}
       </p>
       <div className="mt-1 flex items-end justify-center gap-2 rise-in" style={{ animationDelay: "70ms" }}>
         <span className="tnum font-display text-[3.2rem] font-light leading-none text-gold-bright">{pct}%</span>
-        <span className="mb-2 text-sm text-mid">match</span>
+        <span className="mb-2 text-sm text-mid">{t.match}</span>
       </div>
       <p className="mt-1 text-xs tracking-[0.18em] text-low rise-in" style={{ animationDelay: "90ms" }}>
-        TOP {reading.rarity}% RARITY
+        {t.rarityStamp(reading.rarity)}
       </p>
 
       {/* watch — AI illustration if present, else generated SVG */}
@@ -179,39 +199,39 @@ function WatchAct({
         {watch.brand}
       </p>
       <h2 className="mt-1 font-display text-[1.7rem] font-light leading-tight text-hi rise-in" style={{ animationDelay: "160ms" }}>
-        {reading.name ? `${reading.name}'s ${watch.model}` : watch.model}
+        {reading.name ? t.ownPossessive(reading.name, watch.model) : watch.model}
       </h2>
       {watch.reference && (
         <p className="mt-1 text-xs text-low rise-in" style={{ animationDelay: "180ms" }}>
-          Ref. {watch.reference}
+          {t.refPrefix}{watch.reference}
         </p>
       )}
 
       {/* traits */}
       <div className="mt-4 flex flex-wrap justify-center gap-2 rise-in" style={{ animationDelay: "200ms" }}>
-        {reading.traits.map((t) => (
-          <span key={t} className="rounded-full border border-border bg-overlay px-3 py-1 text-xs text-mid">
-            {t}
+        {traitList(reading, lang).map((trait) => (
+          <span key={trait} className="rounded-full border border-border bg-overlay px-3 py-1 text-xs text-mid">
+            {trait}
           </span>
         ))}
       </div>
 
       {/* reasoning */}
       <p className="mt-5 text-[1.02rem] leading-relaxed text-mid rise-in" style={{ animationDelay: "240ms" }}>
-        {reading.reason}
+        {reasonText(reading, lang)}
       </p>
 
       {/* personal reading line (from the "misread" question) */}
       <p className="mt-3 font-display text-[1.02rem] italic leading-relaxed text-gold-bright/90 rise-in" style={{ animationDelay: "260ms" }}>
-        {reading.personalLine}
+        {personalLineText(reading, lang)}
       </p>
 
       {/* spec row: case / dial / strap */}
       <div className="mt-5 grid w-full grid-cols-3 gap-2.5 rise-in" style={{ animationDelay: "280ms" }}>
         {[
-          { k: "Case", v: watch.caseMaterial },
-          { k: "Dial", v: watch.dialColor },
-          { k: "Strap", v: recipe.strapText },
+          { k: t.caseLabel, v: materialText(watch.caseMaterial, lang, true) },
+          { k: t.dialLabel, v: dialText(watch.dialColor, lang, true) },
+          { k: t.strapLabel, v: recipe.strapText },
         ].map((s) => (
           <div key={s.k} className="rounded-[var(--radius-md)] border border-border bg-raised px-3 py-3 text-left">
             <p className="text-[0.6rem] uppercase tracking-[0.16em] text-low">{s.k}</p>
@@ -227,29 +247,27 @@ function WatchAct({
         style={{ animationDelay: "300ms" }}
         aria-expanded={why}
       >
-        {why ? "Hide the detail" : "Why this watch?"}
+        {why ? t.whyClose : t.whyOpen}
       </button>
       {why && (
         <div className="mt-3 w-full rounded-[var(--radius-md)] border border-border bg-raised/60 px-4 py-4 text-left text-sm leading-relaxed text-mid rise-in">
           <p>
-            <span className="text-gold">{energy.name} energy.</span> {energy.tagline} {watch.signature}
+            <span className="text-gold">{energyName(reading.baseEnergy, lang)}{t.energySuffix}{t.sentenceEnd}</span>{" "}
+            {energyTagline(reading.baseEnergy, lang)} {signatureText(watch, lang)}
           </p>
-          <p className="mt-2 text-low">{watch.fact}</p>
+          <p className="mt-2 text-low">{factText(watch, lang)}</p>
         </div>
       )}
 
       {/* CTA block */}
       <div className="mt-8 w-full rounded-[var(--radius-md)] border border-border-gold/60 bg-gold/[0.05] px-5 py-5 rise-in" style={{ animationDelay: "320ms" }}>
         <p className="text-sm leading-relaxed text-hi">
-          {watch.owned ? (
-            <>This watch is real — it&apos;s part of the actual collection.</>
-          ) : (
-            <>One of the pieces a real collector would chase.</>
-          )}
+          {watch.owned ? t.ctaOwned : t.ctaUnowned}
         </p>
         <p className="mt-1 text-sm text-mid">
-          {watch.owned ? "See it (and 9 others) on" : "See the collection on"}{" "}
-          <span className="text-gold-bright">@gptwatchcollector</span>.
+          {watch.owned ? t.seeOwnedPre : t.seeUnownedPre}
+          <span className="text-gold-bright">@gptwatchcollector</span>
+          {watch.owned ? t.seeOwnedPost : t.seeUnownedPost}
         </p>
 
         <IgPreview />
@@ -261,7 +279,7 @@ function WatchAct({
           onClick={() => track("follow_ig", { watch_id: watch.id })}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-gold px-6 py-3.5 text-sm font-semibold text-[#1a1305] transition-all duration-300 hover:bg-gold-bright active:scale-[0.98]"
         >
-          Follow @gptwatchcollector
+          {t.follow}
           <span aria-hidden>→</span>
         </a>
       </div>
@@ -274,31 +292,31 @@ function WatchAct({
           className="rounded-[var(--radius-lg)] border border-border-gold bg-gold/[0.06] px-5 py-3.5 text-sm font-medium text-gold-bright transition-all hover:bg-gold/[0.14] active:scale-[0.98] disabled:opacity-60"
         >
           {shareState === "working"
-            ? "Creating…"
+            ? t.shareCreating
             : shareState === "downloaded"
-              ? "Saved ✓"
+              ? t.shareSaved
               : shareState === "shared"
-                ? "Shared ✓"
+                ? t.shareShared
                 : shareState === "error"
-                  ? "Try again"
-                  : "Save my card"}
+                  ? t.shareError
+                  : t.shareIdle}
         </button>
         <button
           onClick={handleCopy}
           className="rounded-[var(--radius-lg)] border border-border bg-overlay px-5 py-3.5 text-sm font-medium text-mid transition-all hover:bg-hover active:scale-[0.98]"
         >
-          {copied ? "Copied ✓" : "Copy caption"}
+          {copied ? t.copied : t.copyCaption}
         </button>
       </div>
 
       {/* enduring line + re-entry for someone else */}
       <p className="mt-7 text-xs leading-relaxed text-low/80">
-        Not for today — for who you are.
+        {t.enduring[0]}
         <br />
-        One nature. One watch. Yours.
+        {t.enduring[1]}
       </p>
       <button onClick={onRetry} className="mt-5 text-sm text-low underline-offset-4 hover:text-mid hover:underline">
-        Reveal another person&apos;s →
+        {t.revealAnother}
       </button>
 
       {/* hidden static render used to rasterise the share card */}

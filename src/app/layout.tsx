@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { LangProvider } from "@/lib/i18n";
+import LangToggle from "@/components/LangToggle";
 import "./globals.css";
 
 // GA4 Measurement ID. Defaults to the live property in production; env var
@@ -27,9 +29,9 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://watch-energy.verce
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Watch Energy — Meet your destiny watch",
+  title: "Watch Energy — Meet your destiny watch · 你的命定之錶",
   description:
-    "Every collector has one destined watch. Your birth and your nature decide a single haute-horlogerie piece written for you — case, dial, strap, and the energy it carries. Built by a collector.",
+    "Every collector has one destined watch. Your birth and your nature decide a single haute-horlogerie piece written for you — case, dial, strap, and the energy it carries. Built by a collector. ｜每位藏家都有一枚命定之錶：以你的出生與本質，配對一枚為你而寫的高級腕錶。",
   keywords: [
     "destiny watch",
     "watch energy",
@@ -39,6 +41,10 @@ export const metadata: Metadata = {
     "watch recommendation",
     "Audemars Piguet",
     "watch collector",
+    "命定之錶",
+    "腕錶配對",
+    "高級製錶",
+    "玩錶",
   ],
   authors: [{ name: "@gptwatchcollector" }],
   openGraph: {
@@ -78,7 +84,12 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <LangProvider>
+          <LangToggle />
+          {children}
+        </LangProvider>
+      </body>
       {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
     </html>
   );

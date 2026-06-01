@@ -1,11 +1,38 @@
+import { captionFor, recipeText, signatureText, UI, type Lang } from "./copy";
 import { IMAGE_READY } from "./imageManifest";
 import type { Reading } from "./types";
+
+export { captionFor } from "./copy";
 
 const HANDLE = "@gptwatchcollector";
 const W = 1080;
 const H = 1920;
 // Where the watch illustration sits on the card (shared by the SVG + PNG paths).
 const WATCH_BOX = { x: 290, y: 430, w: 500, h: 500 };
+
+// Card-only labels, per language. The "WATCH ENERGY" wordmark stays as-is.
+const CARD: Record<Lang, {
+  recipeHead: string;
+  energyMatch: string;
+  rarity: string;
+  topRarity: (r: number) => string;
+  footer: string;
+}> = {
+  en: {
+    recipeHead: "YOUR DESTINY RECIPE",
+    energyMatch: "ENERGY MATCH",
+    rarity: "RARITY",
+    topRarity: (r) => `TOP ${r}%`,
+    footer: "MEET YOUR DESTINY WATCH",
+  },
+  zh: {
+    recipeHead: "你的命定配方",
+    energyMatch: "能量匹配",
+    rarity: "稀有度",
+    topRarity: (r) => `前 ${r}%`,
+    footer: "認識你的命定之錶",
+  },
+};
 
 function escapeXml(s: string): string {
   return s
@@ -16,12 +43,21 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-// Greedy word-wrap by approximate character budget.
+// Greedy word-wrap by approximate character budget. Words longer than the
+// budget (e.g. an unbroken run of Chinese, which has no spaces) are split by
+// character so CJK text wraps instead of overflowing.
 function wrap(text: string, maxChars: number, maxLines: number): string[] {
-  const words = text.split(/\s+/);
+  const tokens: string[] = [];
+  for (const w of text.split(/\s+/)) {
+    if (w.length <= maxChars) {
+      tokens.push(w);
+    } else {
+      for (let i = 0; i < w.length; i += maxChars) tokens.push(w.slice(i, i + maxChars));
+    }
+  }
   const lines: string[] = [];
   let cur = "";
-  for (const w of words) {
+  for (const w of tokens) {
     const next = cur ? `${cur} ${w}` : w;
     if (next.length > maxChars && cur) {
       lines.push(cur);
@@ -45,14 +81,17 @@ const MID = "#574e40";
 const LOW = "#978c79";
 
 /** Build the full 9:16 share-card SVG as a string, embedding the watch markup. */
-export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): string {
-  const { watch, recipe } = reading;
+export function buildCardSvg(reading: Reading, lang: Lang, watchInnerSvg: string | null): string {
+  const { watch } = reading;
+  const c = CARD[lang];
+  const zh = lang === "zh";
+  const recipe = recipeText(watch, lang);
   // Recipe leads the card (the legible, shareable hook); the watch is the reveal.
   const recipeStr = `${recipe.caseText}  ·  ${recipe.dialText}  ·  ${recipe.strapText}`;
-  const recipeLines = wrap(recipeStr, 26, 2);
-  const modelText = reading.name ? `${reading.name}'s ${watch.model}` : watch.model;
+  const recipeLines = wrap(recipeStr, zh ? 14 : 26, 2);
+  const modelText = reading.name ? UI[lang].ownPossessive(reading.name, watch.model) : watch.model;
   const modelLines = wrap(modelText, 22, 2);
-  const sigLines = wrap(watch.signature, 40, 2);
+  const sigLines = wrap(signatureText(watch, lang), zh ? 20 : 40, 2);
 
   const recipeSvg = recipeLines
     .map(
@@ -123,7 +162,9 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): st
   <line x1="${W / 2 - 70}" y1="196" x2="${W / 2 + 70}" y2="196" stroke="${GOLD}" stroke-opacity="0.5" stroke-width="1.5"/>
 
   <!-- recipe (the hook) -->
-  <text x="${W / 2}" y="258" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="6" fill="${GOLD}">YOUR DESTINY RECIPE</text>
+  <text x="${W / 2}" y="258" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="${zh ? 8 : 6}" fill="${GOLD}">${escapeXml(
+    c.recipeHead,
+  )}</text>
   ${recipeSvg}
 
   <!-- watch -->
@@ -139,11 +180,17 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): st
   <g>
     <rect x="${W / 2 - 250}" y="1196" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
     <text x="${W / 2 - 130}" y="1242" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">${reading.matchPercent}%</text>
-    <text x="${W / 2 - 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">ENERGY MATCH</text>
+    <text x="${W / 2 - 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">${escapeXml(
+      c.energyMatch,
+    )}</text>
 
     <rect x="${W / 2 + 10}" y="1196" width="240" height="86" rx="43" fill="${GOLD}" fill-opacity="0.08" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="1.5"/>
-    <text x="${W / 2 + 130}" y="1242" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">TOP ${reading.rarity}%</text>
-    <text x="${W / 2 + 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">RARITY</text>
+    <text x="${W / 2 + 130}" y="1242" text-anchor="middle" font-family="${SERIF}" font-size="40" fill="${GOLD_HI}">${escapeXml(
+      c.topRarity(reading.rarity),
+    )}</text>
+    <text x="${W / 2 + 130}" y="1268" text-anchor="middle" font-family="${SANS}" font-size="17" letter-spacing="3" fill="${MID}">${escapeXml(
+      c.rarity,
+    )}</text>
   </g>
 
   <!-- signature -->
@@ -151,7 +198,9 @@ export function buildCardSvg(reading: Reading, watchInnerSvg: string | null): st
 
   <!-- handle -->
   <text x="${W / 2}" y="1800" text-anchor="middle" font-family="${SERIF}" font-size="42" fill="${GOLD_HI}">${HANDLE}</text>
-  <text x="${W / 2}" y="1844" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="4" fill="${LOW}">MEET YOUR DESTINY WATCH</text>
+  <text x="${W / 2}" y="1844" text-anchor="middle" font-family="${SANS}" font-size="22" letter-spacing="${zh ? 6 : 4}" fill="${LOW}">${escapeXml(
+    c.footer,
+  )}</text>
 </svg>`;
 }
 
@@ -200,17 +249,17 @@ async function renderCardBlob(svg: string, watchPng: HTMLImageElement | null): P
 
 export type ShareOutcome = "shared" | "downloaded" | "error";
 
-export function captionFor(reading: Reading): string {
-  return `My destiny watch: ${reading.watch.brand} ${reading.watch.model} — ${reading.matchPercent}% match, top ${reading.rarity}%. Meet yours 👉 ${HANDLE}`;
-}
-
-export async function shareReading(reading: Reading, watchSvgEl: SVGSVGElement): Promise<ShareOutcome> {
+export async function shareReading(
+  reading: Reading,
+  watchSvgEl: SVGSVGElement,
+  lang: Lang,
+): Promise<ShareOutcome> {
   try {
     // Prefer the AI illustration when one exists; otherwise embed the SVG watch.
     const watchPng = IMAGE_READY.has(reading.watch.id)
       ? await loadImageEl(`/watches/${reading.watch.id}.png`)
       : null;
-    const svg = buildCardSvg(reading, watchPng ? null : watchSvgEl.outerHTML);
+    const svg = buildCardSvg(reading, lang, watchPng ? null : watchSvgEl.outerHTML);
     const png = await renderCardBlob(svg, watchPng);
     const file = new File([png], `watch-energy-${reading.watch.id}.png`, { type: "image/png" });
 
@@ -221,7 +270,7 @@ export async function shareReading(reading: Reading, watchSvgEl: SVGSVGElement):
       await nav.share({
         files: [file],
         title: "Watch Energy",
-        text: captionFor(reading),
+        text: captionFor(reading, lang),
       });
       return "shared";
     }
