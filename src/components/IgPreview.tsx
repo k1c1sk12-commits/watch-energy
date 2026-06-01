@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 
-// Behold.so JSON feed URL (https://feeds.behold.so/XXXXXXXX). Set via env, or
-// the hardcoded fallback once the feed exists. Empty -> the component renders
-// nothing, so it's safe to ship before the feed is connected.
-const FEED = process.env.NEXT_PUBLIC_BEHOLD_FEED ?? "";
+// Behold.so JSON feed URL (https://feeds.behold.so/XXXXXXXX). Env overrides the
+// live default; empty -> the component renders nothing.
+const FEED =
+  process.env.NEXT_PUBLIC_BEHOLD_FEED ?? "https://feeds.behold.so/6S00ExvM2k8UkjaOPzBY";
 
 interface Post {
   permalink: string;
