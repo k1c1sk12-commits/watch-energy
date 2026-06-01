@@ -7,6 +7,7 @@ import { captionFor, shareReading, type ShareOutcome } from "@/lib/shareCard";
 import type { Reading } from "@/lib/types";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { CaseSwatch, DialSwatch, StrapSwatch } from "./ConfigSwatch";
+import IgPreview from "./IgPreview";
 import WatchImage from "./WatchImage";
 import WatchVisual from "./WatchVisual";
 
@@ -250,6 +251,9 @@ function WatchAct({
           {watch.owned ? "See it (and 9 others) on" : "See the collection on"}{" "}
           <span className="text-gold-bright">@gptwatchcollector</span>.
         </p>
+
+        <IgPreview />
+
         <a
           href={IG_URL}
           target="_blank"
