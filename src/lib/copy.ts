@@ -25,6 +25,9 @@ export const UI: Record<Lang, {
   game2Title: string;
   game2Blurb: string;
   game2Cta: string;
+  game3Title: string;
+  game3Blurb: string;
+  game3Cta: string;
   disclaimer: string;
   // Input
   inputEyebrow: string;
@@ -87,6 +90,10 @@ export const UI: Record<Lang, {
     game2Blurb:
       "Rank all 35 watches in the collection into your own tiers — S down to Never — then share your taste.",
     game2Cta: "Build your tier list",
+    game3Title: "Watch Bracket",
+    game3Blurb:
+      "Two watches, one tap. Knock them out round by round until your grail is crowned.",
+    game3Cta: "Start the bracket",
     disclaimer: "For fun. Not financial or astrological advice.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
@@ -149,6 +156,10 @@ export const UI: Record<Lang, {
     game2Blurb:
       "將收藏中的 35 枚腕錶排進你自己的 tier —— 由 S 到絕不 —— 再分享你的品味。",
     game2Cta: "打造你的 tier list",
+    game3Title: "腕錶對決",
+    game3Blurb:
+      "兩枚腕錶，一指定奪。逐輪淘汰，直到選出屬於你的 grail。",
+    game3Cta: "開始對決",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
     inputEyebrow: "你的命定之錶 · 解讀",
     inputTitle: "回答幾個問題，便揭曉你的腕錶。",
@@ -778,4 +789,114 @@ export function tierCaption(lang: Lang): string {
   return lang === "zh"
     ? `我的腕錶 tier list —— 你又會怎麼排？👉 ${handle}`
     : `My watch tier list — how would you rank them? 👉 ${handle}`;
+}
+
+// ===========================================================================
+// 12. Watch bracket — a clean 32-watch single-elimination "this or that".
+//     Every OWNED piece always enters; the rest of the 32 is filled randomly
+//     from the non-owned pool, so 3 non-owned watches sit out each game.
+// ===========================================================================
+export const BRACKET_SIZE = 32;
+
+// Round name keyed by how many contenders remain in the round.
+export function roundName(size: number, lang: Lang): string {
+  const en: Record<number, string> = {
+    32: "Round of 32",
+    16: "Round of 16",
+    8: "Quarterfinal",
+    4: "Semifinal",
+    2: "Final",
+  };
+  const zh: Record<number, string> = { 32: "32 強", 16: "16 強", 8: "8 強", 4: "4 強", 2: "決賽" };
+  return (lang === "zh" ? zh : en)[size] ?? (lang === "zh" ? `${size} 強` : `Round of ${size}`);
+}
+
+export const BR_UI: Record<Lang, {
+  title: string;
+  prompt: string;
+  vs: string;
+  match: (n: number, total: number) => string;
+  bracketStart: string;
+  nextRound: string;
+  watchesLeft: (n: number) => string;
+  tapContinue: string;
+  championEyebrow: string;
+  championBeat: (n: number) => string;
+  top4Title: string;
+  playAgain: string;
+  back: string;
+  loading: string;
+  shareIdle: string;
+  shareCreating: string;
+  shareSaved: string;
+  shareShared: string;
+  shareError: string;
+  copyCaption: string;
+  copied: string;
+  ctaOwned: string;
+  ctaUnowned: string;
+  follow: string;
+  cardTitle: string;
+}> = {
+  en: {
+    title: "Watch Bracket",
+    prompt: "Tap the one you'd keep.",
+    vs: "VS",
+    match: (n, total) => `Match ${n} / ${total}`,
+    bracketStart: "The bracket begins",
+    nextRound: "Next round",
+    watchesLeft: (n) => `${n} watches remain`,
+    tapContinue: "Tap to continue",
+    championEyebrow: "Your grail",
+    championBeat: (n) => `Crowned over ${n} others.`,
+    top4Title: "Your Top 4",
+    playAgain: "Play again",
+    back: "← Back",
+    loading: "Drawing the bracket…",
+    shareIdle: "Save my Top 4",
+    shareCreating: "Creating…",
+    shareSaved: "Saved ✓",
+    shareShared: "Shared ✓",
+    shareError: "Try again",
+    copyCaption: "Copy caption",
+    copied: "Copied ✓",
+    ctaOwned: "This one is real — part of the actual collection.",
+    ctaUnowned: "A piece any real collector would chase.",
+    follow: "Follow @gptwatchcollector",
+    cardTitle: "MY TOP 4",
+  },
+  zh: {
+    title: "腕錶對決",
+    prompt: "選你會留下的那一枚。",
+    vs: "VS",
+    match: (n, total) => `第 ${n} / ${total} 場`,
+    bracketStart: "對決開始",
+    nextRound: "下一輪",
+    watchesLeft: (n) => `尚餘 ${n} 枚`,
+    tapContinue: "點一下繼續",
+    championEyebrow: "你的 grail",
+    championBeat: (n) => `擊敗其餘 ${n} 枚，封王。`,
+    top4Title: "你的四強",
+    playAgain: "再玩一次",
+    back: "← 返回",
+    loading: "正在抽出對陣表…",
+    shareIdle: "儲存我的 Top 4",
+    shareCreating: "製作中…",
+    shareSaved: "已儲存 ✓",
+    shareShared: "已分享 ✓",
+    shareError: "再試一次",
+    copyCaption: "複製文案",
+    copied: "已複製 ✓",
+    ctaOwned: "這枚是真實存在的 —— 屬於這個收藏。",
+    ctaUnowned: "一枚真正藏家都會追逐的腕錶。",
+    follow: "追蹤 @gptwatchcollector",
+    cardTitle: "我的 TOP 4",
+  },
+};
+
+export function championCaption(watch: Watch, lang: Lang): string {
+  const handle = "@gptwatchcollector";
+  return lang === "zh"
+    ? `我的腕錶 Top 4 —— 冠軍：${watch.brand} ${watch.model} 👉 ${handle}`
+    : `My watch Top 4 — No.1: ${watch.brand} ${watch.model} 👉 ${handle}`;
 }

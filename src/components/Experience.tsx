@@ -11,8 +11,10 @@ import InputScreen, { type RevealData } from "./InputScreen";
 import ReadingScreen from "./Reading";
 import Result from "./Result";
 import TierList from "./TierList";
+import Bracket from "./Bracket";
+import { FEATURES } from "@/lib/features";
 
-type Phase = "landing" | "input" | "reading" | "result" | "tier";
+type Phase = "landing" | "input" | "reading" | "result" | "tier" | "bracket";
 
 const TEASER = WATCHES.find((w) => w.id === "ap-ro-16202st")!;
 
@@ -71,6 +73,10 @@ export default function Experience() {
               track("begin_tier");
               setPhase("tier");
             }}
+            onBracket={() => {
+              track("begin_bracket");
+              setPhase("bracket");
+            }}
           />
         )}
         {phase === "input" && <InputScreen initial={draft} onReveal={reveal} />}
@@ -79,6 +85,7 @@ export default function Experience() {
           <Result reading={reading} onRetry={() => setPhase("input")} />
         )}
         {phase === "tier" && <TierList onBack={() => setPhase("landing")} />}
+        {phase === "bracket" && FEATURES.bracket && <Bracket onBack={() => setPhase("landing")} />}
       </div>
     </main>
   );

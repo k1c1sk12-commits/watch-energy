@@ -1,6 +1,7 @@
 "use client";
 
 import { TIER_META, UI } from "@/lib/copy";
+import { FEATURES } from "@/lib/features";
 import { useLang } from "@/lib/i18n";
 import type { Watch } from "@/lib/types";
 import WatchVisual from "./WatchVisual";
@@ -9,10 +10,12 @@ export default function Landing({
   teaser,
   onBegin,
   onTier,
+  onBracket,
 }: {
   teaser: Watch;
   onBegin: () => void;
   onTier: () => void;
+  onBracket: () => void;
 }) {
   const { lang } = useLang();
   const t = UI[lang];
@@ -71,6 +74,19 @@ export default function Landing({
             delay={260}
             icon={<TierGlyph />}
           />
+
+          {/* Game 3 — bracket (hidden until launch) */}
+          {FEATURES.bracket && (
+            <GameCard
+              index={3}
+              title={t.game3Title}
+              blurb={t.game3Blurb}
+              cta={t.game3Cta}
+              onClick={onBracket}
+              delay={340}
+              icon={<BracketGlyph />}
+            />
+          )}
         </div>
       </div>
 
@@ -126,6 +142,20 @@ function GameCard({
         </span>
       </span>
     </button>
+  );
+}
+
+// A little knockout-bracket glyph (two pairs merging to one).
+function BracketGlyph() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden className="text-gold">
+      <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+        <path d="M5 7h7M5 17h7M12 7v10M12 12h6" />
+        <path d="M5 23h7M5 33h7M12 23v10M12 28h6" />
+        <path d="M18 12v16M18 20h6" />
+      </g>
+      <circle cx="30" cy="20" r="2.4" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 

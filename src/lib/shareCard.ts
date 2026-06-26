@@ -1,5 +1,7 @@
 import {
+  BR_UI,
   captionFor,
+  championCaption,
   recipeText,
   signatureText,
   TIER_META,
@@ -11,7 +13,7 @@ import {
   type Tier,
 } from "./copy";
 import { IMAGE_READY } from "./imageManifest";
-import type { Reading } from "./types";
+import type { Reading, Watch } from "./types";
 import { WATCHES } from "./watches";
 
 export { captionFor } from "./copy";
@@ -462,6 +464,174 @@ export async function shareTierList(placement: Placement, lang: Lang): Promise<S
     const caption = lang === "zh"
       ? `我的腕錶 tier list 👉 ${HANDLE}`
       : `My watch tier list 👉 ${HANDLE}`;
+
+    const nav = navigator as Navigator & {
+      canShare?: (data: { files: File[] }) => boolean;
+    };
+    if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+      await nav.share({ files: [file], title: "Watch Energy", text: caption });
+      return "shared";
+    }
+
+    const url = URL.createObjectURL(png);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return "downloaded";
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") return "shared";
+    console.error(e);
+    return "error";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Bracket "Top 4" share card — champion hero + the four semifinalists ranked.
+// `top4` is ordered: [champion, runner-up, semi-finalist, semi-finalist].
+// ---------------------------------------------------------------------------
+const C_W = 1080;
+const C_H = 1560;
+const C_BOX = { x: 290, y: 196, w: 500, h: 500 };
+
+async function drawWatch(
+  ctx: CanvasRenderingContext2D,
+  watch: Watch,
+  img: HTMLImageElement | null,
+  x: number,
+  y: number,
+  size: number,
+) {
+  if (img) {
+    const r = Math.min(size / img.width, size / img.height);
+    const w = img.width * r;
+    const h = img.height * r;
+    ctx.drawImage(img, x + (size - w) / 2, y + (size - h) / 2, w, h);
+  } else {
+    ctx.beginPath();
+    ctx.arc(x + size / 2, y + size / 2, size / 2 - 6, 0, Math.PI * 2);
+    ctx.fillStyle = watch.dialHex;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+async function renderTop4CardBlob(top4: Watch[], lang: Lang): Promise<Blob> {
+  const ui = BR_UI[lang];
+  const champ = top4[0];
+  const imgs = await Promise.all(
+    top4.map((w) => (IMAGE_READY.has(w.id) ? loadImageEl(`/watches/${w.id}.png`) : Promise.resolve(null))),
+  );
+
+  const canvas = document.createElement("canvas");
+  canvas.width = C_W;
+  canvas.height = C_H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+
+  const bg = ctx.createLinearGradient(0, 0, 0, C_H);
+  bg.addColorStop(0, "#f6f1e7");
+  bg.addColorStop(0.5, "#f1ebe0");
+  bg.addColorStop(1, "#ece3d3");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, C_W, C_H);
+  ctx.strokeStyle = "rgba(154,124,52,0.34)";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 34, 34, C_W - 68, C_H - 68, 28);
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD;
+  ctx.font = `28px ${SANS}`;
+  ctx.fillText("WATCH ENERGY", C_W / 2, 104);
+  ctx.fillStyle = GOLD_HI;
+  ctx.font = `40px ${SERIF}`;
+  ctx.fillText(ui.cardTitle, C_W / 2, 166);
+
+  // champion hero + platter
+  const cx = C_W / 2;
+  const cyHero = C_BOX.y + C_BOX.h / 2;
+  const platter = ctx.createRadialGradient(cx, cyHero, 0, cx, cyHero, 300);
+  platter.addColorStop(0, "rgba(90,72,40,0.14)");
+  platter.addColorStop(1, "rgba(90,72,40,0)");
+  ctx.fillStyle = platter;
+  ctx.beginPath();
+  ctx.arc(cx, cyHero, 300, 0, Math.PI * 2);
+  ctx.fill();
+  await drawWatch(ctx, champ, imgs[0], C_BOX.x, C_BOX.y, C_BOX.w);
+
+  // champion brand + model
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD;
+  ctx.font = `26px ${SANS}`;
+  ctx.fillText(champ.brand.toUpperCase(), cx, 736);
+  const modelLines = wrap(champ.model, 22, 2);
+  ctx.fillStyle = HI;
+  ctx.font = `50px ${SERIF}`;
+  modelLines.forEach((l, i) => ctx.fillText(l, cx, 798 + i * 58));
+
+  // "TOP 4" divider
+  let y = 798 + modelLines.length * 58 + 56;
+  ctx.fillStyle = GOLD;
+  ctx.font = `24px ${SANS}`;
+  ctx.fillText(ui.top4Title.toUpperCase(), cx, y);
+  y += 34;
+
+  // four ranked tiles
+  const n = top4.length;
+  const gap = 20;
+  const pad = 70;
+  const tile = Math.min(220, (C_W - pad * 2 - (n - 1) * gap) / n);
+  const rowW = n * tile + (n - 1) * gap;
+  const startX = (C_W - rowW) / 2;
+  for (let i = 0; i < n; i++) {
+    const tx = startX + i * (tile + gap);
+    const isChamp = i === 0;
+    ctx.fillStyle = "rgba(90,72,40,0.06)";
+    roundRect(ctx, tx, y, tile, tile, 14);
+    ctx.fill();
+    ctx.strokeStyle = isChamp ? "rgba(201,168,106,0.85)" : "rgba(90,72,40,0.18)";
+    ctx.lineWidth = isChamp ? 2.5 : 1;
+    roundRect(ctx, tx, y, tile, tile, 14);
+    ctx.stroke();
+    await drawWatch(ctx, top4[i], imgs[i], tx + 12, y + 12, tile - 24);
+    // rank badge
+    ctx.beginPath();
+    ctx.arc(tx + 22, y + 22, 16, 0, Math.PI * 2);
+    ctx.fillStyle = isChamp ? GOLD : "#8a8276";
+    ctx.fill();
+    ctx.fillStyle = "#1a1305";
+    ctx.font = `bold 20px ${SANS}`;
+    ctx.textAlign = "center";
+    ctx.fillText(String(i + 1), tx + 22, y + 29);
+  }
+  y += tile + 8;
+
+  // footer
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_HI;
+  ctx.font = `40px ${SERIF}`;
+  ctx.fillText(HANDLE, C_W / 2, C_H - 86);
+  ctx.fillStyle = LOW;
+  ctx.font = `22px ${SANS}`;
+  ctx.fillText(lang === "zh" ? "你的 Top 4 又是哪幾枚？" : "What's your Top 4?", C_W / 2, C_H - 50);
+
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 0.95),
+  );
+}
+
+export async function shareChampion(top4: Watch[], lang: Lang): Promise<ShareOutcome> {
+  try {
+    const champ = top4[0];
+    const png = await renderTop4CardBlob(top4, lang);
+    const file = new File([png], `watch-energy-top4-${champ.id}.png`, { type: "image/png" });
+    const caption = championCaption(champ, lang);
 
     const nav = navigator as Navigator & {
       canShare?: (data: { files: File[] }) => boolean;
