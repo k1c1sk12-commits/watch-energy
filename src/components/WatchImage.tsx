@@ -11,7 +11,15 @@ import WatchVisual from "./WatchVisual";
  * otherwise falls back to the generated SVG watch. Drop a PNG in and rebuild —
  * the manifest picks it up automatically.
  */
-export default function WatchImage({ watch, size }: { watch: Watch; size: number }) {
+export default function WatchImage({
+  watch,
+  size,
+  priority = true,
+}: {
+  watch: Watch;
+  size: number;
+  priority?: boolean;
+}) {
   const [failed, setFailed] = useState(false);
 
   if (!IMAGE_READY.has(watch.id) || failed) {
@@ -27,7 +35,8 @@ export default function WatchImage({ watch, size }: { watch: Watch; size: number
       onError={() => setFailed(true)}
       style={{ width: size, height: size, objectFit: "contain" }}
       unoptimized
-      priority
+      priority={priority}
+      loading={priority ? undefined : "lazy"}
     />
   );
 }

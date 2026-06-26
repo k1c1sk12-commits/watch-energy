@@ -1,6 +1,18 @@
-import { captionFor, recipeText, signatureText, UI, type Lang } from "./copy";
+import {
+  captionFor,
+  recipeText,
+  signatureText,
+  TIER_META,
+  TIER_UI,
+  TIERS,
+  tierLabel,
+  UI,
+  type Lang,
+  type Tier,
+} from "./copy";
 import { IMAGE_READY } from "./imageManifest";
 import type { Reading } from "./types";
+import { WATCHES } from "./watches";
 
 export { captionFor } from "./copy";
 
@@ -287,6 +299,189 @@ export async function shareReading(
     return "downloaded";
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") return "shared"; // user dismissed sheet
+    console.error(e);
+    return "error";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tier-list share card — canvas-rendered. Each tier that has at least one
+// watch becomes a row: a coloured label box + the watch illustrations as
+// tiles (AI PNG when present, a dial-colour disc as a fallback).
+// ---------------------------------------------------------------------------
+const T_PAD = 50;
+const T_TILE = 116;
+const T_GAP = 14;
+const T_LABEL_W = 150;
+const T_INNER_GAP = 18;
+const T_TILES_X = T_PAD + T_LABEL_W + T_INNER_GAP;
+const T_TILES_W = W - T_PAD - T_TILES_X;
+const T_PER_ROW = Math.max(1, Math.floor((T_TILES_W + T_GAP) / (T_TILE + T_GAP)));
+const T_ROW_VPAD = 18;
+const T_ROW_GAP = 16;
+const T_CONTENT_TOP = 188;
+const T_FOOTER = 168;
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+type Placement = Record<string, Tier>;
+
+async function renderTierCardBlob(placement: Placement, lang: Lang): Promise<Blob> {
+  const ui = TIER_UI[lang];
+  // Tiers in fixed order, but only those the visitor actually used.
+  const rows = TIERS.map((tier) => ({
+    tier,
+    watches: WATCHES.filter((w) => placement[w.id] === tier),
+  })).filter((r) => r.watches.length > 0);
+
+  // Preload every needed AI illustration in parallel (null -> dial fallback).
+  const ids = rows.flatMap((r) => r.watches.map((w) => w.id));
+  const imgEntries = await Promise.all(
+    ids.map(async (id) => [id, IMAGE_READY.has(id) ? await loadImageEl(`/watches/${id}.png`) : null] as const),
+  );
+  const imgs = new Map(imgEntries);
+
+  // Compute each row's height from how many tile-lines it needs.
+  const rowH = rows.map((r) => {
+    const lines = Math.ceil(r.watches.length / T_PER_ROW);
+    return lines * T_TILE + (lines - 1) * T_GAP + T_ROW_VPAD * 2;
+  });
+  const bodyH = rowH.reduce((s, h) => s + h, 0) + Math.max(0, rows.length - 1) * T_ROW_GAP;
+  const H_T = T_CONTENT_TOP + bodyH + T_FOOTER;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H_T;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+
+  // background (ivory, matches the energy card)
+  const bg = ctx.createLinearGradient(0, 0, 0, H_T);
+  bg.addColorStop(0, "#f6f1e7");
+  bg.addColorStop(0.5, "#f1ebe0");
+  bg.addColorStop(1, "#ece3d3");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H_T);
+  ctx.strokeStyle = "rgba(154,124,52,0.34)";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 34, 34, W - 68, H_T - 68, 28);
+  ctx.stroke();
+
+  // header
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD;
+  ctx.font = `30px ${SANS}`;
+  ctx.fillText("WATCH ENERGY", W / 2, 110);
+  ctx.fillStyle = HI;
+  ctx.font = `54px ${SERIF}`;
+  ctx.fillText(ui.cardTitle, W / 2, 168);
+
+  // rows
+  let y = T_CONTENT_TOP;
+  rows.forEach((r, i) => {
+    const h = rowH[i];
+    // label box
+    ctx.fillStyle = TIER_META[r.tier].color;
+    roundRect(ctx, T_PAD, y, T_LABEL_W, h, 16);
+    ctx.fill();
+    ctx.fillStyle = "#1a1305";
+    ctx.font = `44px ${SERIF}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(tierLabel(r.tier, lang), T_PAD + T_LABEL_W / 2, y + h / 2);
+    ctx.textBaseline = "alphabetic";
+
+    // tiles
+    r.watches.forEach((w, idx) => {
+      const col = idx % T_PER_ROW;
+      const line = Math.floor(idx / T_PER_ROW);
+      const tx = T_TILES_X + col * (T_TILE + T_GAP);
+      const ty = y + T_ROW_VPAD + line * (T_TILE + T_GAP);
+      // tile background
+      ctx.fillStyle = "rgba(90,72,40,0.06)";
+      roundRect(ctx, tx, ty, T_TILE, T_TILE, 12);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(90,72,40,0.18)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, tx, ty, T_TILE, T_TILE, 12);
+      ctx.stroke();
+
+      const img = imgs.get(w.id);
+      const p = 8;
+      if (img) {
+        const avail = T_TILE - p * 2;
+        const ratio = Math.min(avail / img.width, avail / img.height);
+        const iw = img.width * ratio;
+        const ih = img.height * ratio;
+        ctx.drawImage(img, tx + (T_TILE - iw) / 2, ty + (T_TILE - ih) / 2, iw, ih);
+      } else {
+        // dial-colour disc fallback
+        const cx = tx + T_TILE / 2;
+        const cy = ty + T_TILE / 2;
+        const rad = (T_TILE - p * 2) / 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fillStyle = w.dialHex;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.2)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    });
+
+    y += h + T_ROW_GAP;
+  });
+
+  // footer
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_HI;
+  ctx.font = `42px ${SERIF}`;
+  ctx.fillText(HANDLE, W / 2, H_T - 92);
+  ctx.fillStyle = LOW;
+  ctx.font = `24px ${SANS}`;
+  ctx.fillText(lang === "zh" ? "你又會怎麼排？" : "How would you rank them?", W / 2, H_T - 52);
+
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 0.95),
+  );
+}
+
+export async function shareTierList(placement: Placement, lang: Lang): Promise<ShareOutcome> {
+  try {
+    const png = await renderTierCardBlob(placement, lang);
+    const file = new File([png], "watch-energy-tier-list.png", { type: "image/png" });
+    const caption = lang === "zh"
+      ? `我的腕錶 tier list 👉 ${HANDLE}`
+      : `My watch tier list 👉 ${HANDLE}`;
+
+    const nav = navigator as Navigator & {
+      canShare?: (data: { files: File[] }) => boolean;
+    };
+    if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+      await nav.share({ files: [file], title: "Watch Energy", text: caption });
+      return "shared";
+    }
+
+    const url = URL.createObjectURL(png);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return "downloaded";
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") return "shared";
     console.error(e);
     return "error";
   }

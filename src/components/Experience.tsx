@@ -10,8 +10,9 @@ import Landing from "./Landing";
 import InputScreen, { type RevealData } from "./InputScreen";
 import ReadingScreen from "./Reading";
 import Result from "./Result";
+import TierList from "./TierList";
 
-type Phase = "landing" | "input" | "reading" | "result";
+type Phase = "landing" | "input" | "reading" | "result" | "tier";
 
 const TEASER = WATCHES.find((w) => w.id === "ap-ro-16202st")!;
 
@@ -66,6 +67,10 @@ export default function Experience() {
               track("begin");
               setPhase("input");
             }}
+            onTier={() => {
+              track("begin_tier");
+              setPhase("tier");
+            }}
           />
         )}
         {phase === "input" && <InputScreen initial={draft} onReveal={reveal} />}
@@ -73,6 +78,7 @@ export default function Experience() {
         {phase === "result" && reading && (
           <Result reading={reading} onRetry={() => setPhase("input")} />
         )}
+        {phase === "tier" && <TierList onBack={() => setPhase("landing")} />}
       </div>
     </main>
   );

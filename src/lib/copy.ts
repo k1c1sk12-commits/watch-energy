@@ -16,13 +16,15 @@ export const LANGS: Lang[] = ["en", "zh"];
 // 1. Static UI chrome
 // ===========================================================================
 export const UI: Record<Lang, {
-  // Landing
-  heroPre: string;
-  heroHighlight: string;
-  heroPost: string;
-  heroBlurb: string;
-  begin: string;
-  twoTaps: string;
+  // Home (two games)
+  homeHeadline: string;
+  homeSub: string;
+  game1Title: string;
+  game1Blurb: string;
+  game1Cta: string;
+  game2Title: string;
+  game2Blurb: string;
+  game2Cta: string;
   disclaimer: string;
   // Input
   inputEyebrow: string;
@@ -75,13 +77,16 @@ export const UI: Record<Lang, {
   revealAnother: string;
 }> = {
   en: {
-    heroPre: "Every collector has one",
-    heroHighlight: "destined watch.",
-    heroPost: " Meet yours.",
-    heroBlurb:
-      "Your birth and your nature decide a single watch written for you — case, dial, strap, and the energy it carries. Not a mood. Not a trend. Your destiny watch.",
-    begin: "Begin",
-    twoTaps: "Two taps · about 15 seconds",
+    homeHeadline: "Two games. One collection.",
+    homeSub: "Pick how you want to play.",
+    game1Title: "Your Destiny Watch",
+    game1Blurb:
+      "Your birth and your nature decide one haute-horlogerie watch written for you — case, dial, strap, and the energy it carries.",
+    game1Cta: "Two taps · about 15 seconds",
+    game2Title: "Watch Tier List",
+    game2Blurb:
+      "Rank all 35 watches in the collection into your own tiers — S down to Never — then share your taste.",
+    game2Cta: "Build your tier list",
     disclaimer: "For fun. Not financial or astrological advice.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
@@ -134,16 +139,19 @@ export const UI: Record<Lang, {
     revealAnother: "Reveal another person's →",
   },
   zh: {
-    heroPre: "每位藏家",
-    heroHighlight: "都有一枚命定之錶。",
-    heroPost: "來認識屬於你的那枚。",
-    heroBlurb:
-      "你的出生與本質，決定一枚為你而寫的腕錶 —— 錶殼、錶面、錶帶，以及它承載的能量。不是一時心情，也不是潮流。是你的命定之錶。",
-    begin: "開始",
-    twoTaps: "兩個動作 · 約 15 秒",
+    homeHeadline: "兩個遊戲。一個收藏。",
+    homeSub: "選一種你想玩的方式。",
+    game1Title: "你的命定之錶",
+    game1Blurb:
+      "由你的出生與本質，配對一枚為你而寫的高級腕錶 —— 錶殼、錶面、錶帶，以及它所承載的能量。",
+    game1Cta: "兩個動作 · 約 15 秒",
+    game2Title: "腕錶 tier list",
+    game2Blurb:
+      "將收藏中的 35 枚腕錶排進你自己的 tier —— 由 S 到絕不 —— 再分享你的品味。",
+    game2Cta: "打造你的 tier list",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
     inputEyebrow: "你的命定之錶 · 解讀",
-    inputTitle: "回答幾條問題，便揭曉你的腕錶。",
+    inputTitle: "回答幾個問題，便揭曉你的腕錶。",
     nameLabel: "我們該怎麼稱呼你？",
     namePlaceholder: "你的名字（可不填）",
     dobLabel: "你的出生日期？",
@@ -152,7 +160,7 @@ export const UI: Record<Lang, {
     naturePrompt: "你內在的本質是？",
     natureSub: "無論哪一天，都不變的那一個。",
     ctaReady: "揭曉我的命定之錶",
-    ctaNotReady: "答完全部即可揭曉",
+    ctaNotReady: "全部回答後即可揭曉",
     readingSteps: [
       "正在解讀你的本質…",
       "正在描繪為你而寫的腕錶…",
@@ -256,7 +264,7 @@ export const Q_PROMPTS: Record<Lang, Record<QuestionKey, string>> = {
     misread: "What do people misread in you?",
   },
   zh: {
-    metal: "揀一種你靈魂會回應的金屬",
+    metal: "選一種你靈魂會回應的金屬",
     mind: "你的思緒會飄向何處？",
     feel: "你的腕錶應該帶來怎樣的感覺…",
     misread: "人們最常誤讀你哪一點？",
@@ -673,4 +681,101 @@ export function captionFor(reading: Reading, lang: Lang): string {
     return `我的命定之錶：${watch.brand} ${watch.model} —— ${matchPercent}% 匹配，稀有度前 ${rarity}%。來認識你的 👉 ${handle}`;
   }
   return `My destiny watch: ${watch.brand} ${watch.model} — ${matchPercent}% match, top ${rarity}%. Meet yours 👉 ${handle}`;
+}
+
+// ===========================================================================
+// 11. Tier list — the visitor ranks the 35-watch pool into their own tiers
+// ===========================================================================
+export type Tier = "S" | "A" | "B" | "NOPE" | "NEVER";
+export const TIERS: Tier[] = ["S", "A", "B", "NOPE", "NEVER"];
+
+// Label per language + the accent colour used for the row tab and share card.
+export const TIER_META: Record<Tier, { label: Record<Lang, string>; color: string }> = {
+  S: { label: { en: "S", zh: "S" }, color: "#c9a86a" }, // gold — grail tier
+  A: { label: { en: "A", zh: "A" }, color: "#c98a4a" }, // warm copper
+  B: { label: { en: "B", zh: "B" }, color: "#8a9a6a" }, // sage
+  NOPE: { label: { en: "Nope", zh: "不要" }, color: "#8a8276" }, // muted grey
+  NEVER: { label: { en: "Never", zh: "絕不" }, color: "#7a4a4a" }, // dusty maroon
+};
+
+export function tierLabel(tier: Tier, lang: Lang): string {
+  return TIER_META[tier].label[lang];
+}
+
+export const TIER_UI: Record<Lang, {
+  title: string;
+  subtitle: string;
+  instruction: string;
+  selectHint: string;
+  cancel: string;
+  remove: string;
+  unranked: string;
+  progress: (n: number, total: number) => string;
+  allRanked: string;
+  emptyTray: string;
+  back: string;
+  reset: string;
+  shareIdle: string;
+  shareCreating: string;
+  shareSaved: string;
+  shareShared: string;
+  shareError: string;
+  copyCaption: string;
+  copied: string;
+  needMore: string;
+  cardTitle: string;
+}> = {
+  en: {
+    title: "Your watch tier list",
+    subtitle: "The 35 in the collection. Where do they land for you?",
+    instruction: "Tap a watch to size it up, then drop it in a tier.",
+    selectHint: "Pick its tier below ↓",
+    cancel: "Cancel",
+    remove: "Unrank",
+    unranked: "Unranked",
+    progress: (n, total) => `${n}/${total} ranked`,
+    allRanked: "All ranked. Now make it official.",
+    emptyTray: "Nothing left to rank.",
+    back: "← Back",
+    reset: "Reset",
+    shareIdle: "Save my tier list",
+    shareCreating: "Creating…",
+    shareSaved: "Saved ✓",
+    shareShared: "Shared ✓",
+    shareError: "Try again",
+    copyCaption: "Copy caption",
+    copied: "Copied ✓",
+    needMore: "Rank a few watches first.",
+    cardTitle: "MY WATCH TIER LIST",
+  },
+  zh: {
+    title: "你的腕錶 tier list",
+    subtitle: "收藏中的 35 枚。在你心目中，它們各自落在哪一檔？",
+    instruction: "點選一枚腕錶看清楚，再放進某個 tier。",
+    selectHint: "在下方選一個 tier ↓",
+    cancel: "取消",
+    remove: "移除",
+    unranked: "未排",
+    progress: (n, total) => `已排 ${n}/${total}`,
+    allRanked: "全部排好了。是時候公開你的品味。",
+    emptyTray: "沒有剩下未排的了。",
+    back: "← 返回",
+    reset: "重排",
+    shareIdle: "儲存我的 tier list",
+    shareCreating: "製作中…",
+    shareSaved: "已儲存 ✓",
+    shareShared: "已分享 ✓",
+    shareError: "再試一次",
+    copyCaption: "複製文案",
+    copied: "已複製 ✓",
+    needMore: "請先排幾枚腕錶。",
+    cardTitle: "我的腕錶 TIER LIST",
+  },
+};
+
+export function tierCaption(lang: Lang): string {
+  const handle = "@gptwatchcollector";
+  return lang === "zh"
+    ? `我的腕錶 tier list —— 你又會怎麼排？👉 ${handle}`
+    : `My watch tier list — how would you rank them? 👉 ${handle}`;
 }
