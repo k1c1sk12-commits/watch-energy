@@ -87,13 +87,12 @@ export default function QuizPage() {
       {/* The interactive game (client-rendered, full viewport). */}
       <QuizClient />
 
-      {/* Crawlable, visible companion content — sits below the fold so it
-          never interrupts play, but gives search engines real text to index. */}
-      <section className="mx-auto max-w-[560px] px-5 pb-24 pt-4">
-        <hr className="border-border" />
-        <h1 className="mt-10 font-display text-[1.6rem] font-light leading-snug text-hi">
-          Watch Knowledge Quiz — test your horology knowledge
-        </h1>
+      {/* Crawlable companion content for search engines. Visually hidden
+          (sr-only, same pattern as the home page) because it is static
+          English+Chinese text that cannot follow the client language toggle —
+          showing both languages below the game read as a bug to visitors. */}
+      <section className="sr-only">
+        <h1>Watch Knowledge Quiz — test your horology knowledge</h1>
         <p className="mt-4 text-[0.95rem] leading-relaxed text-mid">
           Ten multiple-choice questions per round, drawn from an original bank of more than 100.
           Every round is a fresh mix across seven areas of watchmaking: history, complications,
