@@ -656,3 +656,110 @@ export async function shareChampion(top4: Watch[], lang: Lang): Promise<ShareOut
     return "error";
   }
 }
+
+// ---------------------------------------------------------------------------
+// Watch Knowledge Quiz score card — ivory, score-led, handle baked in.
+// ---------------------------------------------------------------------------
+const Q_H = 1350;
+
+async function renderQuizCardBlob(
+  score: number,
+  total: number,
+  titleLabel: string,
+  lang: Lang,
+): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = Q_H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+
+  // background (ivory, matches the other cards)
+  const bg = ctx.createLinearGradient(0, 0, 0, Q_H);
+  bg.addColorStop(0, "#f6f1e7");
+  bg.addColorStop(0.5, "#f1ebe0");
+  bg.addColorStop(1, "#ece3d3");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, Q_H);
+  ctx.strokeStyle = "rgba(154,124,52,0.34)";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 34, 34, W - 68, Q_H - 68, 28);
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+
+  // header
+  ctx.fillStyle = GOLD;
+  ctx.font = `30px ${SANS}`;
+  ctx.fillText("WATCH ENERGY", W / 2, 150);
+  ctx.fillStyle = GOLD;
+  ctx.font = `30px ${SERIF}`;
+  ctx.fillText(lang === "zh" ? "腕錶知識測驗" : "WATCH KNOWLEDGE QUIZ", W / 2, 250);
+
+  // big score
+  ctx.fillStyle = HI;
+  ctx.font = `280px ${SERIF}`;
+  ctx.fillText(`${score}/${total}`, W / 2, 700);
+
+  // title band
+  ctx.fillStyle = GOLD_HI;
+  ctx.font = `74px ${SERIF}`;
+  ctx.fillText(titleLabel, W / 2, 850);
+  ctx.fillStyle = MID;
+  ctx.font = `34px ${SANS}`;
+  ctx.fillText(
+    lang === "zh" ? `答對 ${score} / ${total} 題` : `${score} of ${total} correct`,
+    W / 2,
+    930,
+  );
+
+  // footer
+  ctx.fillStyle = GOLD_HI;
+  ctx.font = `46px ${SERIF}`;
+  ctx.fillText(HANDLE, W / 2, Q_H - 150);
+  ctx.fillStyle = LOW;
+  ctx.font = `26px ${SANS}`;
+  ctx.fillText(lang === "zh" ? "你又考到幾分？" : "Can you beat my score?", W / 2, Q_H - 96);
+
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 0.95),
+  );
+}
+
+export async function shareQuizScore(
+  score: number,
+  total: number,
+  titleLabel: string,
+  lang: Lang,
+): Promise<ShareOutcome> {
+  try {
+    const png = await renderQuizCardBlob(score, total, titleLabel, lang);
+    const file = new File([png], "watch-energy-quiz.png", { type: "image/png" });
+    const caption =
+      lang === "zh"
+        ? `我喺腕錶知識測驗考咗 ${score}/${total}（${titleLabel}）👉 ${HANDLE}`
+        : `I scored ${score}/${total} on the watch knowledge quiz (${titleLabel}) 👉 ${HANDLE}`;
+
+    const nav = navigator as Navigator & {
+      canShare?: (data: { files: File[] }) => boolean;
+    };
+    if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+      await nav.share({ files: [file], title: "Watch Energy", text: caption });
+      return "shared";
+    }
+
+    const url = URL.createObjectURL(png);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return "downloaded";
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") return "shared";
+    console.error(e);
+    return "error";
+  }
+}

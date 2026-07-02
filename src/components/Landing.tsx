@@ -11,11 +11,13 @@ export default function Landing({
   onBegin,
   onTier,
   onBracket,
+  onQuiz,
 }: {
   teaser: Watch;
   onBegin: () => void;
   onTier: () => void;
   onBracket: () => void;
+  onQuiz: () => void;
 }) {
   const { lang } = useLang();
   const t = UI[lang];
@@ -46,47 +48,70 @@ export default function Landing({
           {t.homeSub}
         </p>
 
-        {/* two game cards */}
+        {/* game cards — display order: Destiny · Quiz · Tier List · Bracket.
+            Built as a list so the 01–04 numbering stays sequential across the
+            visible cards regardless of which feature flags are on. */}
         <div className="mt-8 flex w-full flex-col gap-4">
-          {/* Game 1 — destiny watch */}
-          <GameCard
-            index={1}
-            title={t.game1Title}
-            blurb={t.game1Blurb}
-            cta={t.game1Cta}
-            primary
-            onClick={onBegin}
-            delay={180}
-            icon={
-              <div className="opacity-90" style={{ animation: "slow-sweep 50s linear infinite" }}>
-                <WatchVisual watch={teaser} size={64} still />
-              </div>
-            }
-          />
-
-          {/* Game 2 — tier list */}
-          <GameCard
-            index={2}
-            title={t.game2Title}
-            blurb={t.game2Blurb}
-            cta={t.game2Cta}
-            onClick={onTier}
-            delay={260}
-            icon={<TierGlyph />}
-          />
-
-          {/* Game 3 — bracket (hidden until launch) */}
-          {FEATURES.bracket && (
-            <GameCard
-              index={3}
-              title={t.game3Title}
-              blurb={t.game3Blurb}
-              cta={t.game3Cta}
-              onClick={onBracket}
-              delay={340}
-              icon={<BracketGlyph />}
-            />
-          )}
+          {[
+            {
+              key: "destiny",
+              title: t.game1Title,
+              blurb: t.game1Blurb,
+              cta: t.game1Cta,
+              onClick: onBegin,
+              primary: true,
+              show: true,
+              icon: (
+                <div className="opacity-90" style={{ animation: "slow-sweep 50s linear infinite" }}>
+                  <WatchVisual watch={teaser} size={64} still />
+                </div>
+              ),
+            },
+            {
+              key: "quiz",
+              title: t.game4Title,
+              blurb: t.game4Blurb,
+              cta: t.game4Cta,
+              onClick: onQuiz,
+              primary: false,
+              show: FEATURES.quiz,
+              icon: <QuizGlyph />,
+            },
+            {
+              key: "tier",
+              title: t.game2Title,
+              blurb: t.game2Blurb,
+              cta: t.game2Cta,
+              onClick: onTier,
+              primary: false,
+              show: true,
+              icon: <TierGlyph />,
+            },
+            {
+              key: "bracket",
+              title: t.game3Title,
+              blurb: t.game3Blurb,
+              cta: t.game3Cta,
+              onClick: onBracket,
+              primary: false,
+              show: FEATURES.bracket,
+              icon: <BracketGlyph />,
+            },
+          ]
+            .filter((c) => c.show)
+            .map((c, i) => (
+              <GameCard
+                key={c.key}
+                index={i + 1}
+                title={c.title}
+                blurb={c.blurb}
+                cta={c.cta}
+                onClick={c.onClick}
+                primary={c.primary}
+                delay={180 + i * 80}
+                icon={c.icon}
+              />
+            ))}
         </div>
       </div>
 
@@ -142,6 +167,23 @@ function GameCard({
         </span>
       </span>
     </button>
+  );
+}
+
+// A little quiz glyph — a gold question mark in a ring.
+function QuizGlyph() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden className="text-gold">
+      <circle cx="20" cy="20" r="15" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M15.5 15.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4c0 2.2-1.6 3-3 3.8-1 .6-1.5 1.2-1.5 2.4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <circle cx="20" cy="27.5" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 

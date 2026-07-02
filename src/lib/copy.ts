@@ -28,6 +28,9 @@ export const UI: Record<Lang, {
   game3Title: string;
   game3Blurb: string;
   game3Cta: string;
+  game4Title: string;
+  game4Blurb: string;
+  game4Cta: string;
   disclaimer: string;
   // Input
   inputEyebrow: string;
@@ -80,7 +83,7 @@ export const UI: Record<Lang, {
   revealAnother: string;
 }> = {
   en: {
-    homeHeadline: "Two games. One collection.",
+    homeHeadline: "Four games. One collection.",
     homeSub: "Pick how you want to play.",
     game1Title: "Your Destiny Watch",
     game1Blurb:
@@ -94,6 +97,10 @@ export const UI: Record<Lang, {
     game3Blurb:
       "Two watches, one tap. Knock them out round by round until your grail is crowned.",
     game3Cta: "Start the bracket",
+    game4Title: "Watch Knowledge Quiz",
+    game4Blurb:
+      "Ten questions from a 100+ bank — how well do you really know watches? A fresh mix every time.",
+    game4Cta: "Start the quiz",
     disclaimer: "For fun. Not financial or astrological advice.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
@@ -146,7 +153,7 @@ export const UI: Record<Lang, {
     revealAnother: "Reveal another person's →",
   },
   zh: {
-    homeHeadline: "兩個遊戲。一個收藏。",
+    homeHeadline: "四個遊戲。一個收藏。",
     homeSub: "選一種你想玩的方式。",
     game1Title: "你的命定之錶",
     game1Blurb:
@@ -160,6 +167,10 @@ export const UI: Record<Lang, {
     game3Blurb:
       "兩枚腕錶，一指定奪。逐輪淘汰，直到選出屬於你的 grail。",
     game3Cta: "開始對決",
+    game4Title: "腕錶知識測驗",
+    game4Blurb:
+      "從逾 100 條題庫隨機抽十題 —— 你對腕錶的認識有幾深？每次題目都不同。",
+    game4Cta: "開始測驗",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
     inputEyebrow: "你的命定之錶 · 解讀",
     inputTitle: "回答幾個問題，便揭曉你的腕錶。",
@@ -900,3 +911,112 @@ export function championCaption(watch: Watch, lang: Lang): string {
     ? `我的腕錶 Top 4 —— 冠軍：${watch.brand} ${watch.model} 👉 ${handle}`
     : `My watch Top 4 — No.1: ${watch.brand} ${watch.model} 👉 ${handle}`;
 }
+
+// ===========================================================================
+// Watch Knowledge Quiz (Game 4). Chrome is bilingual; the questions themselves
+// live in quiz.ts and stay English. `titles` maps the English score-tier key
+// returned by scoreToTitle() to a localised label.
+// ===========================================================================
+export const QUIZ_UI: Record<Lang, {
+  back: string;
+  introEyebrow: string;
+  introTitle: string;
+  introSub: string;
+  introNote: string;
+  start: string;
+  progress: (n: number, total: number) => string;
+  next: string;
+  finish: string;
+  resultEyebrow: string;
+  correctOf: (score: number, total: number) => string;
+  playAgain: string;
+  shareIdle: string;
+  shareCreating: string;
+  shareSaved: string;
+  shareShared: string;
+  shareError: string;
+  copyCaption: string;
+  copied: string;
+  reviewTitle: string;
+  yourAnswer: string;
+  correctAnswer: string;
+  correctTag: string;
+  wrongTag: string;
+  promo: string;
+  follow: string;
+  titles: Record<string, string>;
+  caption: (score: number, total: number, title: string) => string;
+}> = {
+  en: {
+    back: "← Back",
+    introEyebrow: "Watch Energy",
+    introTitle: "Watch Knowledge Quiz",
+    introSub: "Ten questions. How well do you really know watches?",
+    introNote: "A fresh mix drawn from 100+ questions every time. Questions are in English.",
+    start: "Start the quiz",
+    progress: (n, total) => `Question ${n} / ${total}`,
+    next: "Next",
+    finish: "See my score",
+    resultEyebrow: "Your result",
+    correctOf: (score, total) => `${score} of ${total} correct`,
+    playAgain: "Play again",
+    shareIdle: "Save my score",
+    shareCreating: "Creating…",
+    shareSaved: "Saved ✓",
+    shareShared: "Shared ✓",
+    shareError: "Try again",
+    copyCaption: "Copy caption",
+    copied: "Copied ✓",
+    reviewTitle: "Review your answers",
+    yourAnswer: "Your answer",
+    correctAnswer: "Correct answer",
+    correctTag: "Correct",
+    wrongTag: "Wrong",
+    promo: "Built by a real watch collector. See the actual collection on Instagram.",
+    follow: "Follow @gptwatchcollector",
+    titles: {
+      "Curious Newcomer": "Curious Newcomer",
+      Enthusiast: "Enthusiast",
+      "Seasoned Collector": "Seasoned Collector",
+      "Master Horologist": "Master Horologist",
+    },
+    caption: (score, total, title) =>
+      `I scored ${score}/${total} on the watch knowledge quiz (${title}) 👉 @gptwatchcollector`,
+  },
+  zh: {
+    back: "← 返回",
+    introEyebrow: "Watch Energy",
+    introTitle: "腕錶知識測驗",
+    introSub: "十條題目，你對腕錶的認識有幾深？",
+    introNote: "每次從逾 100 條題庫隨機抽十題。題目為英文。",
+    start: "開始測驗",
+    progress: (n, total) => `第 ${n} / ${total} 題`,
+    next: "下一題",
+    finish: "看我的分數",
+    resultEyebrow: "你的成績",
+    correctOf: (score, total) => `答對 ${score} / ${total} 題`,
+    playAgain: "再玩一次",
+    shareIdle: "儲存我的分數",
+    shareCreating: "製作中…",
+    shareSaved: "已儲存 ✓",
+    shareShared: "已分享 ✓",
+    shareError: "再試一次",
+    copyCaption: "複製文案",
+    copied: "已複製 ✓",
+    reviewTitle: "重溫你的答案",
+    yourAnswer: "你的答案",
+    correctAnswer: "正確答案",
+    correctTag: "答對",
+    wrongTag: "答錯",
+    promo: "由一位真正的玩錶人打造。上 Instagram 看真實收藏。",
+    follow: "追蹤 @gptwatchcollector",
+    titles: {
+      "Curious Newcomer": "好奇新手",
+      Enthusiast: "腕錶愛好者",
+      "Seasoned Collector": "資深藏家",
+      "Master Horologist": "製錶大師",
+    },
+    caption: (score, total, title) =>
+      `我喺腕錶知識測驗考咗 ${score}/${total}（${title}）👉 @gptwatchcollector`,
+  },
+};

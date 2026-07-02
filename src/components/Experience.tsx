@@ -12,9 +12,10 @@ import ReadingScreen from "./Reading";
 import Result from "./Result";
 import TierList from "./TierList";
 import Bracket from "./Bracket";
+import Quiz from "./Quiz";
 import { FEATURES } from "@/lib/features";
 
-type Phase = "landing" | "input" | "reading" | "result" | "tier" | "bracket";
+type Phase = "landing" | "input" | "reading" | "result" | "tier" | "bracket" | "quiz";
 
 const TEASER = WATCHES.find((w) => w.id === "ap-ro-16202st")!;
 
@@ -77,6 +78,10 @@ export default function Experience() {
               track("begin_bracket");
               setPhase("bracket");
             }}
+            onQuiz={() => {
+              track("open_quiz");
+              setPhase("quiz");
+            }}
           />
         )}
         {phase === "input" && <InputScreen initial={draft} onReveal={reveal} />}
@@ -86,6 +91,7 @@ export default function Experience() {
         )}
         {phase === "tier" && <TierList onBack={() => setPhase("landing")} />}
         {phase === "bracket" && FEATURES.bracket && <Bracket onBack={() => setPhase("landing")} />}
+        {phase === "quiz" && FEATURES.quiz && <Quiz onBack={() => setPhase("landing")} />}
       </div>
     </main>
   );
