@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { TIER_META, UI } from "@/lib/copy";
 import { FEATURES } from "@/lib/features";
 import { useLang } from "@/lib/i18n";
@@ -11,13 +12,11 @@ export default function Landing({
   onBegin,
   onTier,
   onBracket,
-  onQuiz,
 }: {
   teaser: Watch;
   onBegin: () => void;
   onTier: () => void;
   onBracket: () => void;
-  onQuiz: () => void;
 }) {
   const { lang } = useLang();
   const t = UI[lang];
@@ -52,7 +51,7 @@ export default function Landing({
             Built as a list so the 01–04 numbering stays sequential across the
             visible cards regardless of which feature flags are on. */}
         <div className="mt-8 flex w-full flex-col gap-4">
-          {[
+          {([
             {
               key: "destiny",
               title: t.game1Title,
@@ -72,7 +71,9 @@ export default function Landing({
               title: t.game4Title,
               blurb: t.game4Blurb,
               cta: t.game4Cta,
-              onClick: onQuiz,
+              // Real link (not state) — the quiz owns /quiz so search engines
+              // can crawl it from here and it can rank on its own URL.
+              href: "/quiz",
               primary: false,
               show: FEATURES.quiz,
               icon: <QuizGlyph />,
@@ -97,7 +98,17 @@ export default function Landing({
               show: FEATURES.bracket,
               icon: <BracketGlyph />,
             },
-          ]
+          ] as Array<{
+            key: string;
+            title: string;
+            blurb: string;
+            cta: string;
+            onClick?: () => void;
+            href?: string;
+            primary: boolean;
+            show: boolean;
+            icon: React.ReactNode;
+          }>)
             .filter((c) => c.show)
             .map((c, i) => (
               <GameCard
@@ -107,6 +118,7 @@ export default function Landing({
                 blurb={c.blurb}
                 cta={c.cta}
                 onClick={c.onClick}
+                href={c.href}
                 primary={c.primary}
                 delay={180 + i * 80}
                 icon={c.icon}
@@ -128,6 +140,7 @@ function GameCard({
   blurb,
   cta,
   onClick,
+  href,
   icon,
   primary = false,
   delay = 0,
@@ -136,22 +149,22 @@ function GameCard({
   title: string;
   blurb: string;
   cta: string;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string; // when set, the card is a real link (crawlable route)
   icon: React.ReactNode;
   primary?: boolean;
   delay?: number;
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className={[
-        "group flex items-center gap-4 rounded-[var(--radius-lg)] border px-4 py-4 text-left transition-all duration-300 active:scale-[0.985] rise-in",
-        primary
-          ? "border-border-gold bg-gold/[0.06] hover:bg-gold/[0.12] hover:shadow-[0_0_28px_var(--gold-glow)]"
-          : "border-border bg-raised hover:border-border-gold/70 hover:bg-hover",
-      ].join(" ")}
-      style={{ animationDelay: `${delay}ms` }}
-    >
+  const className = [
+    "group flex items-center gap-4 rounded-[var(--radius-lg)] border px-4 py-4 text-left transition-all duration-300 active:scale-[0.985] rise-in",
+    primary
+      ? "border-border-gold bg-gold/[0.06] hover:bg-gold/[0.12] hover:shadow-[0_0_28px_var(--gold-glow)]"
+      : "border-border bg-raised hover:border-border-gold/70 hover:bg-hover",
+  ].join(" ");
+  const style = { animationDelay: `${delay}ms` };
+
+  const inner = (
+    <>
       <span className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-border bg-overlay/60">
         {icon}
       </span>
@@ -166,6 +179,19 @@ function GameCard({
           <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
         </span>
       </span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className} style={style}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button onClick={onClick} className={className} style={style}>
+      {inner}
     </button>
   );
 }

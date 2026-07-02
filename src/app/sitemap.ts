@@ -5,7 +5,7 @@ const SITE_URL =
 
 // Static date keeps this route cacheable (no request-time API). Bump on
 // meaningful content changes so crawlers know the page was refreshed.
-const LAST_MODIFIED = "2026-06-01";
+const LAST_MODIFIED = "2026-07-02";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 1,
+    },
+    {
+      url: `${SITE_URL}/quiz`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
   ];
 }
