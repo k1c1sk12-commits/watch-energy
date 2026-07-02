@@ -65,6 +65,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
+  // Google Search Console ownership verification (renders as
+  // <meta name="google-site-verification" ...> in the head).
+  verification: {
+    google: "2AxlSUUWGzUiHjvSbSH0_u5e53LtgcfENTOD89NOFoA",
+  },
 };
 
 export const viewport: Viewport = {
