@@ -149,8 +149,7 @@ export const WATCHES: Watch[] = [
   {
     id: "chronoswiss-regulator",
     brand: "Chronoswiss",
-    model: "Regulator",
-    reference: "1988",
+    model: "Regulator (1988)",
     caseMaterial: "Stainless steel",
     dialColor: "White",
     caseEnergy: "LUMEN",
@@ -354,7 +353,7 @@ export const WATCHES: Watch[] = [
     rarity: 19,
     metal: "steel",
     dialHex: "#141414",
-    complication: "pilot",
+    complication: "dive",
   },
   {
     id: "vc-patrimony-platinum",
@@ -426,7 +425,7 @@ export const WATCHES: Watch[] = [
     strapType: "blackLeather",
     strapEnergy: "TIDE",
     signature: "A cult blue that quietly outranks half the grails above it.",
-    fact: "The Chronomètre Bleu is uniquely cased in tantalum, a rare blue-grey metal.",
+    fact: "The Chronomètre Bleu is one of very few watches serially produced in tantalum, a rare blue-grey metal.",
     owned: false,
     rarity: 3,
     metal: "tantalum",
@@ -539,7 +538,7 @@ export const WATCHES: Watch[] = [
     rarity: 4,
     metal: "whiteGold",
     dialHex: "#b9d6e3",
-    complication: "tourbillon",
+    complication: "time",
   },
   {
     id: "voutilainen-vingt8",
@@ -665,6 +664,6 @@ export const WATCHES: Watch[] = [
     rarity: 2,
     metal: "whiteGold",
     dialHex: "#cfcabe",
-    complication: "tourbillon",
+    complication: "time",
   },
 ];

@@ -261,7 +261,7 @@ async function renderCardBlob(svg: string, watchPng: HTMLImageElement | null): P
   }
 }
 
-export type ShareOutcome = "shared" | "downloaded" | "error";
+export type ShareOutcome = "shared" | "downloaded" | "cancelled" | "error";
 
 export async function shareReading(
   reading: Reading,
@@ -300,7 +300,7 @@ export async function shareReading(
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return "downloaded";
   } catch (e) {
-    if (e instanceof DOMException && e.name === "AbortError") return "shared"; // user dismissed sheet
+    if (e instanceof DOMException && e.name === "AbortError") return "cancelled"; // user dismissed sheet
     console.error(e);
     return "error";
   }
@@ -483,7 +483,7 @@ export async function shareTierList(placement: Placement, lang: Lang): Promise<S
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return "downloaded";
   } catch (e) {
-    if (e instanceof DOMException && e.name === "AbortError") return "shared";
+    if (e instanceof DOMException && e.name === "AbortError") return "cancelled";
     console.error(e);
     return "error";
   }
@@ -651,7 +651,7 @@ export async function shareChampion(top4: Watch[], lang: Lang): Promise<ShareOut
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return "downloaded";
   } catch (e) {
-    if (e instanceof DOMException && e.name === "AbortError") return "shared";
+    if (e instanceof DOMException && e.name === "AbortError") return "cancelled";
     console.error(e);
     return "error";
   }
@@ -758,7 +758,7 @@ export async function shareQuizScore(
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return "downloaded";
   } catch (e) {
-    if (e instanceof DOMException && e.name === "AbortError") return "shared";
+    if (e instanceof DOMException && e.name === "AbortError") return "cancelled";
     console.error(e);
     return "error";
   }

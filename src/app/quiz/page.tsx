@@ -87,12 +87,15 @@ export default function QuizPage() {
       {/* The interactive game (client-rendered, full viewport). */}
       <QuizClient />
 
-      {/* Crawlable companion content for search engines. Visually hidden
-          (sr-only, same pattern as the home page) because it is static
-          English+Chinese text that cannot follow the client language toggle —
-          showing both languages below the game read as a bug to visitors. */}
-      <section className="sr-only">
-        <h1>Watch Knowledge Quiz — test your horology knowledge</h1>
+      {/* Visible below-the-fold companion content. Hidden-text SEO (sr-only
+          blocks of keyword copy) risks Google's spam policies — this must stay
+          visible. English-only: it is static server content that cannot follow
+          the client language toggle. */}
+      <section className="mx-auto max-w-[560px] border-t border-border px-5 pb-16 pt-12">
+        <p className="text-[0.75rem] uppercase tracking-[0.18em] text-low">About this quiz</p>
+        <h1 className="mt-2 font-display text-[1.4rem] font-light text-hi">
+          Watch Knowledge Quiz — test your horology knowledge
+        </h1>
         <p className="mt-4 text-[0.95rem] leading-relaxed text-mid">
           Ten multiple-choice questions per round, drawn from an original bank of more than 100.
           Every round is a fresh mix across seven areas of watchmaking: history, complications,
@@ -133,10 +136,6 @@ export default function QuizPage() {
           , where the real collection — haute horlogerie, independents and complications — lives.
           The quiz is one of four free games on Watch Energy, alongside the Destiny Watch match,
           the Watch Tier List and the Watch Bracket.
-        </p>
-        <p className="mt-3 text-[0.95rem] leading-relaxed text-mid">
-          腕錶知識測驗：十題一局，逾百條原創題庫，涵蓋製錶歷史、複雜功能、機芯、物料、品牌與打磨工藝。
-          免費、無需登記，完成後可重溫每一條答錯的題目。由 @gptwatchcollector 背後的真實藏家打造。
         </p>
       </section>
     </>
