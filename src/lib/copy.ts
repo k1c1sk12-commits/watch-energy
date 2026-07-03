@@ -31,6 +31,7 @@ export const UI: Record<Lang, {
   game4Title: string;
   game4Blurb: string;
   game4Cta: string;
+  huntLink: string; // landing link to /hunt (want-to-buy list)
   disclaimer: string;
   // Input
   inputEyebrow: string;
@@ -101,6 +102,7 @@ export const UI: Record<Lang, {
     game4Blurb:
       "Ten questions from a 100+ bank — how well do you really know watches? A fresh mix every time.",
     game4Cta: "Start the quiz",
+    huntLink: "The Hunt — watches I'm looking to buy →",
     disclaimer: "For fun. Not financial or astrological advice.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
@@ -171,6 +173,7 @@ export const UI: Record<Lang, {
     game4Blurb:
       "從逾 100 條題庫隨機抽十題 —— 你對腕錶的認識有幾深？每次題目都不同。",
     game4Cta: "開始測驗",
+    huntLink: "尋錶清單 —— 我正在收的錶 →",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
     inputEyebrow: "你的命定之錶 · 解讀",
     inputTitle: "回答幾個問題，便揭曉你的腕錶。",

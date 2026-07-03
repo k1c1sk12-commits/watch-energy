@@ -125,6 +125,18 @@ export default function Landing({
               />
             ))}
         </div>
+
+        {/* Not a game — the collector's want-to-buy list, kept deliberately
+            quieter than the game cards. */}
+        {FEATURES.hunt && (
+          <Link
+            href="/hunt"
+            className="mt-6 text-[0.82rem] font-medium text-gold-bright/90 underline-offset-4 transition-colors hover:text-gold-bright hover:underline rise-in"
+            style={{ animationDelay: "500ms" }}
+          >
+            {t.huntLink}
+          </Link>
+        )}
       </div>
 
       <p className="absolute bottom-5 left-0 right-0 px-6 text-center text-[11px] leading-relaxed text-low/70">

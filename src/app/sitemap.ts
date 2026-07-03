@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { FEATURES } from "@/lib/features";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://watch-energy.vercel.app";
@@ -21,5 +22,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    // flag-gated: the route 404s until launch, so keep it out of the sitemap
+    ...(FEATURES.hunt
+      ? [
+          {
+            url: `${SITE_URL}/hunt`,
+            lastModified: LAST_MODIFIED,
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+          },
+        ]
+      : []),
   ];
 }
