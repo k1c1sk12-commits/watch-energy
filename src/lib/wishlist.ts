@@ -3,9 +3,8 @@
 // page must never show prices or price talk — the only call to action is a
 // DM on Instagram.
 //
-// ⚠️ PLACEHOLDER ENTRIES — replace with Kenson's real hunt list before
-// flipping FEATURES.hunt to true. Each `why` line is written first-person in
-// Kenson's voice: one honest sentence on why this piece, no hype.
+// Each `why` line is first-person in Kenson's voice: one honest sentence on
+// why this piece, no hype.
 
 export interface HuntWatch {
   id: string;
@@ -18,24 +17,35 @@ export interface HuntWatch {
 
 export const HUNT_LIST: HuntWatch[] = [
   {
-    id: "example-journe-cb",
-    brand: "F.P. Journe",
-    model: "Chronomètre Bleu",
-    detail: "Tantalum case, chrome-blue dial — any honest example",
-    why: "The quiet one on every list I make and unmake — time to stop making lists.",
+    id: "pp-3940g",
+    brand: "Patek Philippe",
+    model: "Perpetual Calendar",
+    reference: "3940G",
+    detail: "White gold, second or third series",
+    why: "The most classic perpetual calendar Patek ever made — the reference the whole genre still answers to.",
   },
   {
-    id: "example-daniel-roth-papillon",
-    brand: "Daniel Roth",
-    model: "Papillon",
-    detail: "Yellow or white gold, double-ellipse case",
-    why: "My skeleton chronograph deserves its strangest sibling.",
+    id: "pp-5130p",
+    brand: "Patek Philippe",
+    model: "World Time",
+    reference: "5130P",
+    detail: "Platinum",
+    why: "Hong Kong on the city disc — my own hour, named on a Patek dial.",
   },
   {
-    id: "example-voutilainen-vingt8",
-    brand: "Voutilainen",
-    model: "Vingt-8",
-    detail: "Any dial — the movement is the point",
-    why: "One watch that would end arguments about what hand-finishing means.",
+    id: "breguet-3337",
+    brand: "Breguet",
+    model: "Classique Day-Date Moonphase",
+    reference: "3337",
+    detail: "White gold",
+    why: "Daniel Roth's hand at Breguet, before the world knew his name.",
+  },
+  {
+    id: "breguet-3330",
+    brand: "Breguet",
+    model: "Classique",
+    reference: "3330",
+    detail: "White gold",
+    why: "Same era, same DNA — the bridge between my Daniel Roth and the house that trained him.",
   },
 ];
