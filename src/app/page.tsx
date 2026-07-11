@@ -30,11 +30,12 @@ export default function Home() {
           層面的配對，由一位真正的玩錶人打造。
         </p>
         <p>
-          Four free games: the Destiny Watch match, a{" "}
+          Five free games: the Destiny Watch match, a{" "}
           <a href="/quiz">Watch Knowledge Quiz</a> (ten questions per round from
           an original bank of 100+ covering watch history, complications,
-          movements, materials, brands and finishing), a Watch Tier List, and a
-          Watch Bracket.
+          movements, materials, brands and finishing), a Watch Tier List, a
+          Watch Bracket, and <a href="/smash">Watch Smash</a> — a keyboard-smash
+          game where every letter throws out a real watch brand.
         </p>
         <p>
           By @gptwatchcollector — a watch collector and KOL sharing haute

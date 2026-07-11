@@ -31,6 +31,9 @@ export const UI: Record<Lang, {
   game4Title: string;
   game4Blurb: string;
   game4Cta: string;
+  game5Title: string;
+  game5Blurb: string;
+  game5Cta: string;
   huntLink: string; // landing link to /hunt (want-to-buy list)
   disclaimer: string;
   // Input
@@ -84,7 +87,7 @@ export const UI: Record<Lang, {
   revealAnother: string;
 }> = {
   en: {
-    homeHeadline: "Four games. One collection.",
+    homeHeadline: "Five games. One collection.",
     homeSub: "Pick how you want to play.",
     game1Title: "Your Destiny Watch",
     game1Blurb:
@@ -102,6 +105,10 @@ export const UI: Record<Lang, {
     game4Blurb:
       "Ten questions from a 100+ bank — how well do you really know watches? A fresh mix every time.",
     game4Cta: "Start the quiz",
+    game5Title: "Watch Smash",
+    game5Blurb:
+      "Smash the keyboard, tap the screen — every letter throws out a watch brand. Light up all 26 letters if you can.",
+    game5Cta: "Start smashing",
     huntLink: "The Hunt — watches I'm looking to buy →",
     disclaimer: "For fun. Not financial or astrological advice.",
     inputEyebrow: "Your destiny watch · the reading",
@@ -155,7 +162,7 @@ export const UI: Record<Lang, {
     revealAnother: "Reveal another person's →",
   },
   zh: {
-    homeHeadline: "四個遊戲。一個收藏。",
+    homeHeadline: "五個遊戲。一個收藏。",
     homeSub: "選一種你想玩的方式。",
     game1Title: "你的命定之錶",
     game1Blurb:
@@ -173,6 +180,10 @@ export const UI: Record<Lang, {
     game4Blurb:
       "從逾 100 條題庫隨機抽十題 —— 你對腕錶的認識有幾深？每次題目都不同。",
     game4Cta: "開始測驗",
+    game5Title: "腕錶亂打",
+    game5Blurb:
+      "亂打鍵盤、狂點螢幕 —— 每個字母都會飛出一個腕錶品牌。看你能否點亮全部 26 個字母。",
+    game5Cta: "開始亂打",
     huntLink: "尋錶清單 —— 我正在收的錶 →",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
     inputEyebrow: "你的命定之錶 · 解讀",
@@ -224,6 +235,75 @@ export const UI: Record<Lang, {
     copyCaption: "複製文案",
     enduring: ["不是為了今天 —— 而是為了你是誰。", "一種本質。一枚腕錶。屬於你。"],
     revealAnother: "為另一個人揭曉 →",
+  },
+};
+
+// ===========================================================================
+// 1b. Watch Smash (/smash) UI strings
+// ===========================================================================
+export const SMASH_UI: Record<Lang, {
+  introTitle: string;
+  introSub: string;
+  introStart: string;
+  counterLabel: string;
+  done: string;
+  soundOnAria: string;
+  soundOffAria: string;
+  enterFullscreenAria: string;
+  exitFullscreenAria: string;
+  alphabetComplete: string;
+  reportEyebrow: string;
+  statSmashes: string;
+  statBrands: string;
+  statLetters: string;
+  brandsHeading: string;
+  qFootnote: string;
+  again: string;
+  backHome: string;
+}> = {
+  en: {
+    introTitle: "Smash the keyboard. Tap the screen.",
+    introSub:
+      "Every letter throws out a real watch brand — R is for Rolex and Richard Mille. Light up all 26 letters.",
+    introStart: "Tap anywhere or hit any key to start",
+    counterLabel: "smashes",
+    done: "Done",
+    soundOnAria: "Mute sound",
+    soundOffAria: "Unmute sound",
+    enterFullscreenAria: "Enter fullscreen",
+    exitFullscreenAria: "Exit fullscreen",
+    alphabetComplete: "Full alphabet — all 26 letters lit!",
+    reportEyebrow: "Smash report",
+    statSmashes: "Smashes",
+    statBrands: "Brands discovered",
+    statLetters: "Letters lit",
+    brandsHeading: "Your brand haul",
+    qFootnote:
+      "Q is for the Quartz Crisis — no great maison starts with Q, but 1969 nearly ended them all.",
+    again: "Smash again",
+    backHome: "← Back to the games",
+  },
+  zh: {
+    introTitle: "亂打鍵盤，狂點螢幕。",
+    introSub:
+      "每個字母都會飛出一個真實腕錶品牌 —— R 是 Rolex 和 Richard Mille。點亮全部 26 個字母吧。",
+    introStart: "點任何地方或按任何鍵開始",
+    counterLabel: "下",
+    done: "結束",
+    soundOnAria: "關閉音效",
+    soundOffAria: "開啟音效",
+    enterFullscreenAria: "進入全螢幕",
+    exitFullscreenAria: "退出全螢幕",
+    alphabetComplete: "全字母點亮 —— 26 個全中！",
+    reportEyebrow: "亂打戰報",
+    statSmashes: "總點擊",
+    statBrands: "發現品牌",
+    statLetters: "點亮字母",
+    brandsHeading: "你收穫的品牌",
+    qFootnote:
+      "Q 屬於石英危機 —— 沒有一家大錶廠以 Q 開頭，但 1969 年它幾乎終結了所有錶廠。",
+    again: "再來一局",
+    backHome: "← 返回遊戲",
   },
 };
 

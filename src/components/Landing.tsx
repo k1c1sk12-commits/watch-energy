@@ -98,6 +98,17 @@ export default function Landing({
               show: FEATURES.bracket,
               icon: <BracketGlyph />,
             },
+            {
+              key: "smash",
+              title: t.game5Title,
+              blurb: t.game5Blurb,
+              cta: t.game5Cta,
+              // Real link (not state) — the game owns /smash for SEO.
+              href: "/smash",
+              primary: false,
+              show: FEATURES.smash,
+              icon: <SmashGlyph />,
+            },
           ] as Array<{
             key: string;
             title: string;
@@ -235,6 +246,20 @@ function BracketGlyph() {
         <path d="M18 12v16M18 20h6" />
       </g>
       <circle cx="30" cy="20" r="2.4" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// A little keyboard-burst glyph — a keycap with sparks flying off it.
+function SmashGlyph() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden className="text-gold">
+      <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+        <rect x="11" y="15" width="16" height="14" rx="3.5" />
+        <path d="M17 22.8l2.2-5.6h.6l2.2 5.6M17.9 21h3.2" strokeWidth="1.4" />
+        <path d="M9 10l-2.5-2.5M20 8V4.5M31 10l2.5-2.5" />
+        <path d="M6.5 20H4M34 20h-2.5" strokeWidth="1.3" />
+      </g>
     </svg>
   );
 }

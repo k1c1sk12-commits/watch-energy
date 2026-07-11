@@ -134,8 +134,8 @@ export default function QuizPage() {
             @gptwatchcollector
           </a>
           , where the real collection — haute horlogerie, independents and complications — lives.
-          The quiz is one of four free games on Watch Energy, alongside the Destiny Watch match,
-          the Watch Tier List and the Watch Bracket.
+          The quiz is one of five free games on Watch Energy, alongside the Destiny Watch match,
+          the Watch Tier List, the Watch Bracket and Watch Smash.
         </p>
       </section>
     </>

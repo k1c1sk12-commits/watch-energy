@@ -191,6 +191,39 @@ body {
   }
 }
 
+/* ---------- Watch Smash sprites ---------- */
+/* pop in at the smash point, drift along (--dx, --dy), fade out */
+@keyframes smash-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(var(--r0, 0deg));
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(var(--s, 1)) rotate(var(--r0, 0deg));
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -140px)))
+      scale(var(--s, 1)) rotate(var(--r1, 0deg));
+  }
+}
+
+/* finger-trail footprint */
+@keyframes smash-dot {
+  from {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(var(--s, 1));
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+}
+
 /* count number tabular */
 .tnum {
   font-variant-numeric: tabular-nums;
