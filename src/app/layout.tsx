@@ -67,8 +67,13 @@ export const metadata: Metadata = {
   },
   // Google Search Console ownership verification (renders as
   // <meta name="google-site-verification" ...> in the head).
+  // Two tokens: the original watch-energy.vercel.app property and the
+  // gptwatchcollector.com property — keep both so neither loses verification.
   verification: {
-    google: "2AxlSUUWGzUiHjvSbSH0_u5e53LtgcfENTOD89NOFoA",
+    google: [
+      "2AxlSUUWGzUiHjvSbSH0_u5e53LtgcfENTOD89NOFoA",
+      "vi1v1DgcyeqMdTbrEjDnzbDBURfaH4NIZgUMkKQ3Vcw",
+    ],
   },
 };
 
