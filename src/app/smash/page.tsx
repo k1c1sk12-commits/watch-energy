@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import { LETTER_BRANDS, TOTAL_BRANDS } from "@/lib/smash";
 import SmashClient from "./SmashClient";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://watch-energy.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gptwatchcollector.com";
 const IG_URL = "https://www.instagram.com/gptwatchcollector/";
 
 export const metadata: Metadata = {

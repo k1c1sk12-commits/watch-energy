@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import QuizClient from "./QuizClient";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://watch-energy.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gptwatchcollector.com";
 const IG_URL = "https://www.instagram.com/gptwatchcollector/";
 
 export const metadata: Metadata = {

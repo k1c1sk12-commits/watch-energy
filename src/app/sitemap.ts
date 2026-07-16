@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 import { FEATURES } from "@/lib/features";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://watch-energy.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://gptwatchcollector.com";
 
 // Static date keeps this route cacheable (no request-time API). Bump on
 // meaningful content changes so crawlers know the page was refreshed.
-const LAST_MODIFIED = "2026-07-08";
+const LAST_MODIFIED = "2026-07-16";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
