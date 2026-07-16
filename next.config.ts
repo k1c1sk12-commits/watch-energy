@@ -12,12 +12,9 @@ const nextConfig: NextConfig = {
         destination: "https://gptwatchcollector.com/:path*",
         permanent: true,
       },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.gptwatchcollector.com" }],
-        destination: "https://gptwatchcollector.com/:path*",
-        permanent: true,
-      },
+      // NOTE: no www→apex redirect here — the www↔apex relationship is owned
+      // by the Vercel dashboard (primary-domain setting). Duplicating it in
+      // code caused an infinite loop when the dashboard pointed the other way.
     ];
   },
 };
