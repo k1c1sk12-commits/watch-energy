@@ -22,6 +22,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/destiny`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/tier`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    ...(FEATURES.bracket
+      ? [
+          {
+            url: `${SITE_URL}/bracket`,
+            lastModified: LAST_MODIFIED,
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+          },
+        ]
+      : []),
     // flag-gated: the routes 404 until launch, so keep them out of the sitemap
     ...(FEATURES.smash
       ? [

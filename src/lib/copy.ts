@@ -36,6 +36,16 @@ export const UI: Record<Lang, {
   game5Cta: string;
   huntLink: string; // landing link to /hunt (want-to-buy list)
   disclaimer: string;
+  // Home — collector hub
+  hubHeadline: string;
+  hubSub: string;
+  hubCollectionTitle: string;
+  hubCollectionNote: string;
+  hubPlayTitle: string;
+  hubPlaySub: string;
+  hubHuntTitle: string;
+  hubHuntBlurb: string;
+  hubTrust: string;
   // Input
   inputEyebrow: string;
   inputTitle: string;
@@ -111,6 +121,17 @@ export const UI: Record<Lang, {
     game5Cta: "Start smashing",
     huntLink: "The Hunt — watches I'm looking to buy →",
     disclaimer: "For fun. Not financial or astrological advice.",
+    hubHeadline: "Every watch here has a story.",
+    hubSub:
+      "Ten real pieces on my wrist — haute horlogerie, independents, complications. Explore the collection, then play with it five ways.",
+    hubCollectionTitle: "The Collection",
+    hubCollectionNote:
+      "Deep dives into each piece are coming. For now, the stories live on Instagram.",
+    hubPlayTitle: "Play · Watch Energy",
+    hubPlaySub: "Five free games built on this collection.",
+    hubHuntTitle: "The Hunt",
+    hubHuntBlurb: "Watches I'm looking to buy — collector to collector, keepers not flips.",
+    hubTrust: "No ads. No affiliate links. Nothing for sale. Just a collector's playground.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
     nameLabel: "What should we call you?",
@@ -186,6 +207,16 @@ export const UI: Record<Lang, {
     game5Cta: "開始亂打",
     huntLink: "尋錶清單 —— 我正在收的錶 →",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
+    hubHeadline: "這裡每一枚錶，都有它的故事。",
+    hubSub:
+      "十枚戴在手上的真實收藏 —— 高級製錶、獨立製錶師、複雜功能。先看收藏，再用五種方式玩它。",
+    hubCollectionTitle: "我的收藏",
+    hubCollectionNote: "每一枚的深度故事陸續上線。現在，先在 Instagram 讀它們。",
+    hubPlayTitle: "玩 · Watch Energy",
+    hubPlaySub: "五個以這批收藏打造的免費遊戲。",
+    hubHuntTitle: "尋錶清單",
+    hubHuntBlurb: "我正在收的錶 —— 藏家對藏家，收來留，不是收來炒。",
+    hubTrust: "沒有廣告，沒有聯盟連結，沒有東西出售。這只是一個藏家的遊樂場。",
     inputEyebrow: "你的命定之錶 · 解讀",
     inputTitle: "回答幾個問題，便揭曉你的腕錶。",
     nameLabel: "我們該怎麼稱呼你？",
