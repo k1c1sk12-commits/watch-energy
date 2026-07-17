@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import { getReading, parseDOB } from "@/lib/engine";
@@ -21,25 +20,9 @@ type Phase = "landing" | "input" | "reading" | "result" | "tier" | "bracket";
 
 const TEASER = WATCHES.find((w) => w.id === "ap-ro-16202st")!;
 
-// When mounted on a game route (/destiny, /tier, /bracket) the flow starts
-// straight in that game and "back" leads home; with no initialMode it keeps
-// the original landing behaviour.
-export type ExperienceMode = "destiny" | "tier" | "bracket";
-
-const START_PHASE: Record<ExperienceMode, Phase> = {
-  destiny: "input",
-  tier: "tier",
-  bracket: "bracket",
-};
-
-export default function Experience({ initialMode }: { initialMode?: ExperienceMode }) {
+export default function Experience() {
   const reduced = useReducedMotion();
-  const router = useRouter();
-  const [phase, setPhase] = useState<Phase>(initialMode ? START_PHASE[initialMode] : "landing");
-  const goHome = useCallback(() => {
-    if (initialMode) router.push("/");
-    else setPhase("landing");
-  }, [initialMode, router]);
+  const [phase, setPhase] = useState<Phase>("landing");
   const [draft, setDraft] = useState<Partial<RevealData>>({});
   const [reading, setReading] = useState<ReadingResult | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -103,8 +86,8 @@ export default function Experience({ initialMode }: { initialMode?: ExperienceMo
         {phase === "result" && reading && (
           <Result reading={reading} onRetry={() => setPhase("input")} />
         )}
-        {phase === "tier" && <TierList onBack={goHome} />}
-        {phase === "bracket" && FEATURES.bracket && <Bracket onBack={goHome} />}
+        {phase === "tier" && <TierList onBack={() => setPhase("landing")} />}
+        {phase === "bracket" && FEATURES.bracket && <Bracket onBack={() => setPhase("landing")} />}
       </div>
     </main>
   );

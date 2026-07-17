@@ -29,9 +29,9 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gptwatchcollector.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "GPT Watch Collector — A Real Collection, Played Five Ways",
+  title: "Watch Energy — Meet your destiny watch · 你的命定之錶",
   description:
-    "Every watch here has a story. Ten real haute-horlogerie pieces — AP, Lange, Daniel Roth, Breguet, independents — plus five free watch games built on them: destiny match, knowledge quiz, tier list, bracket and smash. ｜一位真實藏家的十枚收藏，加五個腕錶遊戲。",
+    "Every collector has one destined watch. Your birth and your nature decide a single haute-horlogerie piece written for you — case, dial, strap, and the energy it carries. Built by a collector. ｜每位藏家都有一枚命定之錶：以你的出生與本質，配對一枚為你而寫的高級腕錶。",
   keywords: [
     "destiny watch",
     "watch energy",
@@ -48,18 +48,18 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "@gptwatchcollector" }],
   openGraph: {
-    title: "GPT Watch Collector — a real collection, played five ways",
+    title: "Watch Energy — Meet your destiny watch",
     description:
-      "Ten real haute-horlogerie pieces and five free watch games built on them. Every watch here has a story.",
+      "Every collector has one destined watch. Your birth and your nature decide it. Not a horoscope — a horological match.",
     url: SITE_URL,
-    siteName: "GPT Watch Collector",
-    images: [{ url: "/api/og", width: 1200, height: 630, alt: "GPT Watch Collector" }],
+    siteName: "Watch Energy",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "Watch Energy" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GPT Watch Collector — a real collection, played five ways",
-    description: "Ten real pieces, five free watch games. Every watch here has a story.",
+    title: "Watch Energy — Meet your destiny watch",
+    description: "Every collector has one destined watch. Meet yours.",
     images: ["/api/og"],
   },
   icons: {

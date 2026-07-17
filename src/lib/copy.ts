@@ -34,18 +34,11 @@ export const UI: Record<Lang, {
   game5Title: string;
   game5Blurb: string;
   game5Cta: string;
+  game6Title: string;
+  game6Blurb: string;
+  game6Cta: string;
   huntLink: string; // landing link to /hunt (want-to-buy list)
   disclaimer: string;
-  // Home — collector hub
-  hubHeadline: string;
-  hubSub: string;
-  hubCollectionTitle: string;
-  hubCollectionNote: string;
-  hubPlayTitle: string;
-  hubPlaySub: string;
-  hubHuntTitle: string;
-  hubHuntBlurb: string;
-  hubTrust: string;
   // Input
   inputEyebrow: string;
   inputTitle: string;
@@ -97,7 +90,7 @@ export const UI: Record<Lang, {
   revealAnother: string;
 }> = {
   en: {
-    homeHeadline: "Five games. One collection.",
+    homeHeadline: "Playground",
     homeSub: "Pick how you want to play.",
     game1Title: "Your Destiny Watch",
     game1Blurb:
@@ -116,22 +109,14 @@ export const UI: Record<Lang, {
       "Ten questions from a 100+ bank — how well do you really know watches? A fresh mix every time.",
     game4Cta: "Start the quiz",
     game5Title: "Watch Smash",
-    game5Blurb:
-      "Smash the keyboard, tap the screen — every letter throws out a watch brand. Light up all 26 letters if you can.",
+    game5Blurb: "Perfect for kids to smash to understand watches.",
     game5Cta: "Start smashing",
+    game6Title: "Bone Eater",
+    game6Blurb:
+      "Bundle the shelf sitters, build purchase history, earn the call — land the grail at retail. A satirical AD-allocation tycoon in three levels.",
+    game6Cta: "Play the AD game",
     huntLink: "The Hunt — watches I'm looking to buy →",
     disclaimer: "For fun. Not financial or astrological advice.",
-    hubHeadline: "Every watch here has a story.",
-    hubSub:
-      "Ten real pieces on my wrist — haute horlogerie, independents, complications. Explore the collection, then play with it five ways.",
-    hubCollectionTitle: "The Collection",
-    hubCollectionNote:
-      "Deep dives into each piece are coming. For now, the stories live on Instagram.",
-    hubPlayTitle: "Play · Watch Energy",
-    hubPlaySub: "Five free games built on this collection.",
-    hubHuntTitle: "The Hunt",
-    hubHuntBlurb: "Watches I'm looking to buy — collector to collector, keepers not flips.",
-    hubTrust: "No ads. No affiliate links. Nothing for sale. Just a collector's playground.",
     inputEyebrow: "Your destiny watch · the reading",
     inputTitle: "A few questions, then your watch.",
     nameLabel: "What should we call you?",
@@ -183,7 +168,7 @@ export const UI: Record<Lang, {
     revealAnother: "Reveal another person's →",
   },
   zh: {
-    homeHeadline: "五個遊戲。一個收藏。",
+    homeHeadline: "Playground",
     homeSub: "選一種你想玩的方式。",
     game1Title: "你的命定之錶",
     game1Blurb:
@@ -202,21 +187,14 @@ export const UI: Record<Lang, {
       "從逾 100 條題庫隨機抽十題 —— 你對腕錶的認識有幾深？每次題目都不同。",
     game4Cta: "開始測驗",
     game5Title: "腕錶亂打",
-    game5Blurb:
-      "亂打鍵盤、狂點螢幕 —— 每個字母都會飛出一個腕錶品牌。看你能否點亮全部 26 個字母。",
+    game5Blurb: "最適合小朋友邊砸邊認識腕錶。",
     game5Cta: "開始亂打",
+    game6Title: "食骨模擬器",
+    game6Blurb:
+      "喺 AD 食骨儲貢獻值，等 SA 電話派配額，正價買到隻肉就過關。三關三隻肉，惡搞但寫實。",
+    game6Cta: "開始食骨",
     huntLink: "尋錶清單 —— 我正在收的錶 →",
     disclaimer: "純屬娛樂，並非投資或占星建議。",
-    hubHeadline: "這裡每一枚錶，都有它的故事。",
-    hubSub:
-      "十枚戴在手上的真實收藏 —— 高級製錶、獨立製錶師、複雜功能。先看收藏，再用五種方式玩它。",
-    hubCollectionTitle: "我的收藏",
-    hubCollectionNote: "每一枚的深度故事陸續上線。現在，先在 Instagram 讀它們。",
-    hubPlayTitle: "玩 · Watch Energy",
-    hubPlaySub: "五個以這批收藏打造的免費遊戲。",
-    hubHuntTitle: "尋錶清單",
-    hubHuntBlurb: "我正在收的錶 —— 藏家對藏家，收來留，不是收來炒。",
-    hubTrust: "沒有廣告，沒有聯盟連結，沒有東西出售。這只是一個藏家的遊樂場。",
     inputEyebrow: "你的命定之錶 · 解讀",
     inputTitle: "回答幾個問題，便揭曉你的腕錶。",
     nameLabel: "我們該怎麼稱呼你？",

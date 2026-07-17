@@ -6,7 +6,7 @@ const SITE_URL =
 
 // Static date keeps this route cacheable (no request-time API). Bump on
 // meaningful content changes so crawlers know the page was refreshed.
-const LAST_MODIFIED = "2026-07-16";
+const LAST_MODIFIED = "2026-07-17";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -22,29 +22,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    {
-      url: `${SITE_URL}/destiny`,
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/tier`,
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    ...(FEATURES.bracket
+    // flag-gated: the routes 404 until launch, so keep them out of the sitemap
+    ...(FEATURES.bone
       ? [
           {
-            url: `${SITE_URL}/bracket`,
+            url: `${SITE_URL}/bone`,
             lastModified: LAST_MODIFIED,
             changeFrequency: "monthly" as const,
-            priority: 0.7,
+            priority: 0.8,
           },
         ]
       : []),
-    // flag-gated: the routes 404 until launch, so keep them out of the sitemap
     ...(FEATURES.smash
       ? [
           {

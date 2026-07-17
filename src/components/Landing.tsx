@@ -35,7 +35,7 @@ export default function Landing({
       </div>
 
       <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center">
-        <p className="eyebrow mb-5 rise-in">Watch Energy</p>
+        <p className="eyebrow mb-5 rise-in">GPT Watch Collector</p>
 
         <h1
           className="font-display text-[1.9rem] font-light leading-[1.14] text-hi rise-in sm:text-[2.2rem]"
@@ -47,11 +47,45 @@ export default function Landing({
           {t.homeSub}
         </p>
 
-        {/* game cards — display order: Destiny · Quiz · Tier List · Bracket.
-            Built as a list so the 01–04 numbering stays sequential across the
-            visible cards regardless of which feature flags are on. */}
+        {/* game cards — display order: Bone Eater · Quiz · Smash · Destiny ·
+            Bracket · Tier. Built as a list so the 01–06 numbering stays
+            sequential across the visible cards regardless of feature flags. */}
         <div className="mt-8 flex w-full flex-col gap-4">
           {([
+            {
+              key: "bone",
+              title: t.game6Title,
+              blurb: t.game6Blurb,
+              cta: t.game6Cta,
+              // Real link (not state) — the game owns /bone for SEO.
+              href: "/bone",
+              primary: false,
+              show: FEATURES.bone,
+              icon: <BoneGlyph />,
+            },
+            {
+              key: "quiz",
+              title: t.game4Title,
+              blurb: t.game4Blurb,
+              cta: t.game4Cta,
+              // Real link (not state) — the quiz owns /quiz so search engines
+              // can crawl it from here and it can rank on its own URL.
+              href: "/quiz",
+              primary: false,
+              show: FEATURES.quiz,
+              icon: <QuizGlyph />,
+            },
+            {
+              key: "smash",
+              title: t.game5Title,
+              blurb: t.game5Blurb,
+              cta: t.game5Cta,
+              // Real link (not state) — the game owns /smash for SEO.
+              href: "/smash",
+              primary: false,
+              show: FEATURES.smash,
+              icon: <SmashGlyph />,
+            },
             {
               key: "destiny",
               title: t.game1Title,
@@ -67,28 +101,6 @@ export default function Landing({
               ),
             },
             {
-              key: "quiz",
-              title: t.game4Title,
-              blurb: t.game4Blurb,
-              cta: t.game4Cta,
-              // Real link (not state) — the quiz owns /quiz so search engines
-              // can crawl it from here and it can rank on its own URL.
-              href: "/quiz",
-              primary: false,
-              show: FEATURES.quiz,
-              icon: <QuizGlyph />,
-            },
-            {
-              key: "tier",
-              title: t.game2Title,
-              blurb: t.game2Blurb,
-              cta: t.game2Cta,
-              onClick: onTier,
-              primary: false,
-              show: true,
-              icon: <TierGlyph />,
-            },
-            {
               key: "bracket",
               title: t.game3Title,
               blurb: t.game3Blurb,
@@ -99,15 +111,14 @@ export default function Landing({
               icon: <BracketGlyph />,
             },
             {
-              key: "smash",
-              title: t.game5Title,
-              blurb: t.game5Blurb,
-              cta: t.game5Cta,
-              // Real link (not state) — the game owns /smash for SEO.
-              href: "/smash",
+              key: "tier",
+              title: t.game2Title,
+              blurb: t.game2Blurb,
+              cta: t.game2Cta,
+              onClick: onTier,
               primary: false,
-              show: FEATURES.smash,
-              icon: <SmashGlyph />,
+              show: true,
+              icon: <TierGlyph />,
             },
           ] as Array<{
             key: string;
@@ -216,6 +227,21 @@ function GameCard({
     <button onClick={onClick} className={className} style={style}>
       {inner}
     </button>
+  );
+}
+
+// A little bone glyph — the allocation game's namesake, set diagonally.
+function BoneGlyph() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden className="text-gold">
+      <g stroke="currentColor" strokeWidth="1.6">
+        <circle cx="11.5" cy="14.5" r="3.4" />
+        <circle cx="14.5" cy="11.5" r="3.4" />
+        <circle cx="25.5" cy="28.5" r="3.4" />
+        <circle cx="28.5" cy="25.5" r="3.4" />
+        <path d="M14.8 16.9l8.3 8.3M16.9 14.8l8.3 8.3" strokeLinecap="round" />
+      </g>
+    </svg>
   );
 }
 
