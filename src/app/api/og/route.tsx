@@ -61,7 +61,7 @@ export function GET() {
             marginBottom: "28px",
           }}
         >
-          WATCH ENERGY
+          GPT WATCH COLLECTOR
         </div>
         <div
           style={{
@@ -74,7 +74,7 @@ export function GET() {
             justifyContent: "center",
           }}
         >
-          Meet your destiny watch.
+          Playground
         </div>
         <div
           style={{
@@ -88,7 +88,7 @@ export function GET() {
             justifyContent: "center",
           }}
         >
-          Your birth and your nature, channelled into one luxury watch.
+          Six free watch games, one real collection.
         </div>
         <div
           style={{
